@@ -18,7 +18,7 @@ namespace MyLibrary
 		 *	TimeIt(code); 
 		 */
 		public delegate void Code(); 
-		public void TimeIt(Code code)
+		public static void TimeIt(Code code)
 		{
 			Stopwatch sw = new Stopwatch();//引用stopwatch物件
 			sw.Reset();//碼表歸零

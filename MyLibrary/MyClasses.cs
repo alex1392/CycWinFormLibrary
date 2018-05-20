@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace MyLibrary
 {
+	public class MyClasses
+	{
+		public int Top;
+		public int Left;
+		public int Width;
+		public int Height;
+	}
+
 	public class PixelImage
 	{
 		private Bitmap _Bitmap;

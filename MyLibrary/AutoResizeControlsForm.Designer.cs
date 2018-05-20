@@ -1,6 +1,6 @@
 ﻿namespace MyLibrary
 {
-	partial class Form1
+	partial class AutoResizeControlsForm
 	{
 		/// <summary>
 		/// 設計工具所需的變數。
