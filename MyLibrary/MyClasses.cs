@@ -6,10 +6,50 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace MyLibrary
 {
-	public class MyClasses
+	public enum ScrollBarOrientation
+	{
+		Horizontal,
+		Vertical
+	}
+
+	public enum SliderOrientation
+	{
+		Horizontal,
+		Vertical,
+		Down,
+		Right,
+		Up,
+		Left
+	}
+
+	public class BackgroundArgs
+	{
+		public object sender;
+		public EventArgs e;
+		public string tag;
+
+		public BackgroundArgs(object sender)
+		{
+			this.sender = sender;
+		}
+		public BackgroundArgs(object sender, EventArgs e)
+		{
+			this.sender = sender;
+			this.e = e;
+		}
+		public BackgroundArgs(object sender, EventArgs e, string tag)
+		{
+			this.sender = sender;
+			this.e = e;
+			this.tag = tag;
+		}
+	}
+
+	public class ControlAnchor
 	{
 		public int Top;
 		public int Left;
@@ -17,7 +57,7 @@ namespace MyLibrary
 		public int Height;
 	}
 
-	public class PixelImage
+	public class PixelImage: ICloneable
 	{
 		private Bitmap _Bitmap;
 		public Bitmap Bitmap
@@ -63,6 +103,11 @@ namespace MyLibrary
 			this.Pixel = pixel; //更新bitmap
 		}
 
+		public object Clone()
+		{
+			PixelImage obj = new PixelImage(this.Bitmap);
+			return obj;
+		}
 		#endregion
 
 		#region Private Methods
@@ -70,9 +115,9 @@ namespace MyLibrary
 		{
 			//將image鎖定到系統內的記憶體的某個區塊中，並將這個結果交給BitmapData類別的imageData
 			BitmapData bitmapData = _Bitmap.LockBits(
-				new Rectangle(0, 0, _Bitmap.Width, _Bitmap.Height),
-				ImageLockMode.ReadOnly,
-				PixelFormat);
+			new Rectangle(0, 0, _Bitmap.Width, _Bitmap.Height),
+			ImageLockMode.ReadOnly,
+			PixelFormat);
 
 			//複製pixel到bitmapData中
 			Marshal.Copy(_Pixel, 0, bitmapData.Scan0, _Pixel.Length);

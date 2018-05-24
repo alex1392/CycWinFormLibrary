@@ -51,7 +51,7 @@ namespace MyLibrary
 			List<Control> opt = new List<Control>(); //不能opt = controlList!!! 會複製到參考型別!!!
 			opt.AddRange(controlList);
 			IEnumerable<Control> groupControls = from control in controlList
-																					 where control is GroupBox | control is TabControl | control is Panel
+																					 where control is GroupBox | control is TabControl | control is Panel 
 																					 select control; //選出controls中的groupControls
 			foreach (Control groupControl in groupControls)
 				opt.AddRange(RecursiveGetControls(groupControl.Controls)); //遞迴加入groupControls中的控制項
@@ -121,7 +121,7 @@ namespace MyLibrary
 		{
 			if (Min > Max)
 				Swap(ref Max, ref Min);
-			return (value < Max && value > Min) ? true : false;
+			return (value <= Max && value >= Min) ? true : false;
 		}
 	}
 }
