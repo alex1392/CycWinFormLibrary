@@ -31,8 +31,8 @@ namespace MyLibrary.Controls
 					return;
 				else
 				{
-					OriginImage = new Bitmap(value);
-					DisplayImage = new Bitmap(pictureBox.Width, pictureBox.Height);
+					OriginImage = value;
+					UpdateDisplayImage(OriginImage, ref DisplayImage);
 					UpdatePictureBox();
 				}
 			}
@@ -58,12 +58,12 @@ namespace MyLibrary.Controls
 		}
 		private Point _ImageBoxPos = new Point(0, 0);
 
-		private void UpdateImage()
+		private void UpdateImageAndScrollBar(Image OriginImage, ref Image DisplayImage)
 		{
-			UpdatePictureBox();
-			UpdateScrollBar();
+			UpdateDisplayImage(OriginImage, ref DisplayImage);
+			UpdateScrollBar(OriginImage);
 		}
-		private void UpdatePictureBox()
+		private void UpdateDisplayImage(Image OriginImage, ref Image DisplayImage)
 		{
 			Rectangle CropRectangle = new Rectangle
 			{
@@ -74,13 +74,15 @@ namespace MyLibrary.Controls
 			};
 
 			Rectangle DestRect = pictureBox.ClientRectangle;
-				using (var graphics = Graphics.FromImage(DisplayImage))
-				{
-					graphics.DrawImage(OriginImage, DestRect, CropRectangle, GraphicsUnit.Pixel);
-				}
+			DisplayImage = new Bitmap(pictureBox.Width, pictureBox.Height);
+			using (var graphics = Graphics.FromImage(DisplayImage))
+			{
+				graphics.DrawImage(OriginImage, DestRect, CropRectangle, GraphicsUnit.Pixel);
+			}
 		}
-		private void UpdateScrollBar()
+		private void UpdateScrollBar(Image OriginImage)
 		{
+			
 			ScrollBarHorizontal.Maximum = OriginImage.Width - EffectivePictureBoxWidth;
 			ScrollBarHorizontal.Value = ImageBoxPos.X;
 			ScrollBarHorizontal.ThumbLength = ScrollBarHorizontal.Width * EffectivePictureBoxWidth / OriginImage.Width;
@@ -95,7 +97,13 @@ namespace MyLibrary.Controls
 			ScrollBarVertical.LargeChange = (int)(ScrollBarVertical.Maximum * ScrollBarVertical.ThumbLength / ScrollBarVertical.BarLength / 5f);
 			ScrollBarVertical.MouseWheelBarPartitions = (int)(10 * ScrollBarVertical.BarLength / (float)ScrollBarVertical.ThumbLength);
 		}
-		
+		private void UpdatePictureBox()
+		{
+			ScrollBarVertical.Enabled = IsImageHeightExceed ? true : false;
+			ScrollBarHorizontal.Enabled = IsImageWidthExceed ? true : false;
+
+			pictureBox.Image = (Bitmap)DisplayImage.Clone(); //使用背景工作時 必須在顯示時Clone!!!!
+		}
 
 		//background worker
 		private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs DoWork_e)
@@ -106,11 +114,14 @@ namespace MyLibrary.Controls
 				MouseEventArgs e = args.e as MouseEventArgs;
 				if (args.sender == pictureBox && e.Button == MouseButtons.Right && e.Delta == 0)
 				{
+					Image OriginImage = (Image)args.parameters[0];
+					Image DisplayImage = (Image)args.parameters[1];
+
 					int dX, dY;
 					dX = (int)((e.X - AnchorPoint.X) / ZoomFactor);
 					dY = (int)((e.Y - AnchorPoint.Y) / ZoomFactor);
 					ImageBoxPos = new Point(OldBoxPos.X - dX, OldBoxPos.Y - dY);
-					UpdatePictureBox();
+					UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
 				}//drag
 				else if (args.sender == this && e.Delta != 0 && pictureBox.ClientRectangle.Contains(e.Location))
 				{
@@ -118,7 +129,7 @@ namespace MyLibrary.Controls
 					ZoomFactor *= factor;
 					Point EffectiveMouseLocation = GetEffectiveMouseLocation(e.Location);
 					ImageBoxPos = new Point((int)(ImageBoxPos.X + EffectiveMouseLocation.X * (1 - 1 / factor)), (int)(ImageBoxPos.Y + EffectiveMouseLocation.Y * (1 - 1 / factor)));
-					UpdatePictureBox();
+					UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
 				}//zoom
 			}
 			else if (args.e is ScrollEventArgs)
@@ -127,20 +138,18 @@ namespace MyLibrary.Controls
 				if (args.sender == ScrollBarVertical)
 				{
 					ImageBoxPos = new Point(ImageBoxPos.X, e.NewValue);
-					UpdatePictureBox();
+					UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
 				}
 				else if (args.sender == ScrollBarHorizontal)
 				{
 					ImageBoxPos = new Point(e.NewValue, ImageBoxPos.Y);
-					UpdatePictureBox();
+					UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
 				}
 			}
 		}
 		private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
-			pictureBox.Image = new Bitmap(DisplayImage); //使用背景工作時 必須在顯示時new Bitmap!!!!
-			ScrollBarVertical.Enabled = IsImageHeightExceed ? true : false;
-			ScrollBarHorizontal.Enabled = IsImageWidthExceed ? true : false;
+			UpdatePictureBox();
 		}
 
 		//Zoom
@@ -151,7 +160,7 @@ namespace MyLibrary.Controls
 			base.OnMouseWheel(e);
 			if (BackgroundWorker.IsBusy)
 				return;
-			
+
 			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(this, e));
 
 		}
@@ -164,8 +173,8 @@ namespace MyLibrary.Controls
 			this.OnMouseMove(e);
 			if (BackgroundWorker.IsBusy)
 				return;
-			
-			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e));
+			object[] parameters = { OriginImage, DisplayImage };
+			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e, parameters));
 		}
 		private void pictureBox_MouseDown(object sender, MouseEventArgs e)
 		{
@@ -174,7 +183,7 @@ namespace MyLibrary.Controls
 			{
 				AnchorPoint = e.Location;
 				OldBoxPos = ImageBoxPos;
-				Cursor = new Cursor(new Bitmap(Properties.Resources.grab_cursor50).GetHicon());
+				Cursor = new Cursor(((Bitmap)Properties.Resources.grab_cursor50.Clone()).GetHicon());
 			}
 		}
 		private void pictureBox_MouseUp(object sender, MouseEventArgs e)
@@ -199,14 +208,14 @@ namespace MyLibrary.Controls
 		{
 			if (BackgroundWorker.IsBusy)
 				return;
-			
+
 			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e));
 		}
 		private void ScrollBarHorizontal_Scroll(object sender, ScrollEventArgs e)
 		{
 			if (BackgroundWorker.IsBusy)
 				return;
-			
+
 			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e));
 		}
 
@@ -222,24 +231,28 @@ namespace MyLibrary.Controls
 			pictureBox.Width = this.Width - ScrollBarVertical.Width;
 			pictureBox.Height = this.Height - ScrollBarHorizontal.Height;
 			pictureBox.Location = new Point(0, 0);
-
-			DisplayImage = new Bitmap(pictureBox.Width, pictureBox.Height);
 		}
 		private void ImageViewer_Resize(object sender, EventArgs e)
 		{
+			if (Image == null)
+			{
+				Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
+			}
 			UpdateLayout();
+			UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
+			UpdatePictureBox();
 		}
 		private void ImageViewer_Load(object sender, EventArgs e)
 		{
 			if (Image == null)
 			{
-				Image = new Bitmap(pictureBox.Width, pictureBox.Height);
+				Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
 			}
 			UpdateLayout();
+			UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
 			UpdatePictureBox();
-			BackgroundWorker_RunWorkerCompleted(null, null);
 		}
 
-		
+
 	}
 }

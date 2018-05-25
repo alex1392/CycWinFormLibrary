@@ -80,6 +80,7 @@ namespace MyLibrary
 			}
 		}
 		public int Byte = 4; //根據Format32bppArgb
+
 		public int Stride => Width * Byte;  //根據Format32bppArgb
 		public int Width => _Bitmap.Width; 
 		public int Height => _Bitmap.Height; 
@@ -87,6 +88,11 @@ namespace MyLibrary
 		public static PixelFormat PixelFormat = PixelFormat.Format32bppArgb;
 
 		#region Constructors
+		public PixelImage()
+		{
+
+		}
+
 		public PixelImage(Bitmap bitmap)
 		{
 			this.Bitmap = new Bitmap(bitmap); //更新pixel
@@ -105,9 +111,13 @@ namespace MyLibrary
 
 		public object Clone()
 		{
-			PixelImage obj = new PixelImage(this.Bitmap);
-			return obj;
-		}
+			return new PixelImage()
+			{
+				_Bitmap = (Bitmap)this._Bitmap.Clone(),
+				_Pixel = (byte[])this._Pixel.Clone(),
+				Byte = this.Byte
+			};
+		} //比new PixelIamge(bitmap)快
 		#endregion
 
 		#region Private Methods

@@ -14,8 +14,11 @@ namespace MyLibrary
 	public class MyMethods
 	{
 		/*	TimeIt Example:
+		 *	1. 
 		 *	Code code = () => { string s = "Your Codes"; };
 		 *	TimeIt(code); 
+		 *	2.
+		 *	TimeIt( () => { string s = "Your Codes"; } );
 		 */
 		public delegate void Code(); 
 		public static void TimeIt(Code code)
