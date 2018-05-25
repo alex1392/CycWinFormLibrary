@@ -20,6 +20,7 @@ namespace MyLibrary.Controls
 			InitializeComponent();
 		}
 		private Image OriginImage;
+		private Image DisplayImage;
 		[Category("Metro Appearance")]
 		public Image Image
 		{
@@ -27,11 +28,12 @@ namespace MyLibrary.Controls
 			set
 			{
 				if (value == null)
-					pictureBox.Image = OriginImage = null;
+					return;
 				else
 				{
-					OriginImage = (Image)value.Clone();
-					UpdateImage();
+					OriginImage = new Bitmap(value);
+					DisplayImage = new Bitmap(pictureBox.Width, pictureBox.Height);
+					UpdateImage(OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical);
 				}
 			}
 		}
@@ -55,15 +57,12 @@ namespace MyLibrary.Controls
 			}
 		}
 		private Point _ImageBoxPos = new Point(0, 0);
-		private void UpdateImage()
+		private void UpdateImage(Image OriginImage, Image DisplayImage, ScrollBar ScrollBarHorizontal, ScrollBar ScrollBarVertical)
 		{
-			if (OriginImage == null)
-				return;
-
-			UpdatePictureBox();
-			UpdateScrollBar();
+			UpdatePictureBox(OriginImage, DisplayImage);
+			UpdateScrollBar(ScrollBarHorizontal, ScrollBarVertical);
 		}
-		private void UpdatePictureBox()
+		private void UpdatePictureBox(Image OriginImage, Image DisplayImage)
 		{
 			Rectangle CropRectangle = new Rectangle
 			{
@@ -74,14 +73,12 @@ namespace MyLibrary.Controls
 			};
 
 			Rectangle DestRect = pictureBox.ClientRectangle;
-			Bitmap DestImage = new Bitmap(pictureBox.Width, pictureBox.Height);
-			using (var graphics = Graphics.FromImage(DestImage))
+			using (var graphics = Graphics.FromImage(DisplayImage))
 			{
 				graphics.DrawImage(OriginImage, DestRect, CropRectangle, GraphicsUnit.Pixel);
 			}
-			pictureBox.Image = DestImage;
 		}
-		private void UpdateScrollBar()
+		private void UpdateScrollBar(ScrollBar ScrollBarHorizontal, ScrollBar ScrollBarVertical)
 		{
 			ScrollBarHorizontal.Maximum = OriginImage.Width - EffectivePictureBoxWidth;
 			ScrollBarHorizontal.Value = ImageBoxPos.X;
@@ -96,34 +93,8 @@ namespace MyLibrary.Controls
 			ScrollBarVertical.SmallChange = (int)(ScrollBarVertical.Maximum * ScrollBarVertical.ThumbLength / ScrollBarVertical.BarLength / 10f);
 			ScrollBarVertical.LargeChange = (int)(ScrollBarVertical.Maximum * ScrollBarVertical.ThumbLength / ScrollBarVertical.BarLength / 5f);
 			ScrollBarVertical.MouseWheelBarPartitions = (int)(10 * ScrollBarVertical.BarLength / (float)ScrollBarVertical.ThumbLength);
-
-			ScrollBarVertical.Enabled = IsImageHeightExceed ? true : false;
-			ScrollBarHorizontal.Enabled = IsImageWidthExceed ? true : false;
 		}
-		private void UpdateLayout()
-		{
-			ScrollBarHorizontal.Height = 15;
-			ScrollBarVertical.Width = 15;
-			ScrollBarHorizontal.Width = this.Width - ScrollBarVertical.Width;
-			ScrollBarVertical.Height = this.Height - ScrollBarHorizontal.Height;
-			ScrollBarHorizontal.Location = new Point(0, this.Height - ScrollBarHorizontal.Height);
-			ScrollBarVertical.Location = new Point(this.Width - ScrollBarVertical.Width, 0);
-			pictureBox.Width = this.Width - ScrollBarVertical.Width;
-			pictureBox.Height = this.Height - ScrollBarHorizontal.Height;
-			pictureBox.Location = new Point(0, 0);
-		}
-
-		//Zoom
-		private float ZoomFactor = 1;
-		public Point GetEffectiveMouseLocation(Point MouseLocation) => new Point((int)(MouseLocation.X / ZoomFactor), (int)(MouseLocation.Y / ZoomFactor));
-		protected override void OnMouseWheel(MouseEventArgs e)
-		{
-			base.OnMouseWheel(e);
-			if (!pictureBox.ClientRectangle.Contains(e.Location) || BackgroundWorker.IsBusy)
-				return;
-			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(this, e));
-
-		}
+		
 
 		//background worker
 		private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs DoWork_e)
@@ -134,42 +105,87 @@ namespace MyLibrary.Controls
 				MouseEventArgs e = args.e as MouseEventArgs;
 				if (args.sender == pictureBox && e.Button == MouseButtons.Right && e.Delta == 0)
 				{
+					Image OriginImage = (Image)args.parameters[0];
+					Image DisplayImage = (Image)args.parameters[1];
+					ScrollBar ScrollBarHorizontal = (ScrollBar)args.parameters[2];
+					ScrollBar ScrollBarVertical = (ScrollBar)args.parameters[3];
+
 					int dX, dY;
 					dX = (int)((e.X - AnchorPoint.X) / ZoomFactor);
 					dY = (int)((e.Y - AnchorPoint.Y) / ZoomFactor);
 					ImageBoxPos = new Point(OldBoxPos.X - dX, OldBoxPos.Y - dY);
-					UpdateImage();
-				}
-				else if (args.sender == this && e.Delta != 0)
+					UpdateImage(OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical);
+				}//drag
+				else if (args.sender == this && e.Delta != 0 && pictureBox.ClientRectangle.Contains(e.Location))
 				{
+					Image OriginImage = (Image)args.parameters[0];
+					Image DisplayImage = (Image)args.parameters[1];
+					ScrollBar ScrollBarHorizontal = (ScrollBar)args.parameters[2];
+					ScrollBar ScrollBarVertical = (ScrollBar)args.parameters[3];
+
 					float factor = (e.Delta > 0) ? 1.1f : 0.9f;
 					ZoomFactor *= factor;
-
 					Point EffectiveMouseLocation = GetEffectiveMouseLocation(e.Location);
 					ImageBoxPos = new Point((int)(ImageBoxPos.X + EffectiveMouseLocation.X * (1 - 1 / factor)), (int)(ImageBoxPos.Y + EffectiveMouseLocation.Y * (1 - 1 / factor)));
-					UpdateImage();
-				}
+					UpdateImage(OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical);
+				}//zoom
 			}
 			else if (args.e is ScrollEventArgs)
 			{
 				ScrollEventArgs e = args.e as ScrollEventArgs;
 				if (args.sender == ScrollBarVertical)
 				{
+					Image OriginImage = (Image)args.parameters[0];
+					Image DisplayImage = (Image)args.parameters[1];
+					ScrollBar ScrollBarHorizontal = (ScrollBar)args.parameters[2];
+					ScrollBar ScrollBarVertical = (ScrollBar)args.parameters[3];
+
 					ImageBoxPos = new Point(ImageBoxPos.X, e.NewValue);
-					UpdateImage();
+					UpdateImage(OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical);
 				}
 				else if (args.sender == ScrollBarHorizontal)
 				{
+					Image OriginImage = (Image)args.parameters[0];
+					Image DisplayImage = (Image)args.parameters[1];
+					ScrollBar ScrollBarHorizontal = (ScrollBar)args.parameters[2];
+					ScrollBar ScrollBarVertical = (ScrollBar)args.parameters[3];
+
 					ImageBoxPos = new Point(e.NewValue, ImageBoxPos.Y);
-					UpdateImage();
+					UpdateImage(OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical);
 				}
 			}
 		}
+		private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			pictureBox.Image = DisplayImage;
+			ScrollBarVertical.Enabled = IsImageHeightExceed ? true : false;
+			ScrollBarHorizontal.Enabled = IsImageWidthExceed ? true : false;
+		}
+
+		//Zoom
+		private float ZoomFactor = 1;
+		public Point GetEffectiveMouseLocation(Point MouseLocation) => new Point((int)(MouseLocation.X / ZoomFactor), (int)(MouseLocation.Y / ZoomFactor));
+		protected override void OnMouseWheel(MouseEventArgs e)
+		{
+			base.OnMouseWheel(e);
+			if (BackgroundWorker.IsBusy)
+				return;
+			object[] parameters = { OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical };
+			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(this, e));
+
+		}
 
 		//drag
-		private bool IsDrag = false;
 		private Point AnchorPoint = new Point();
 		private Point OldBoxPos = new Point();
+		private void pictureBox_MouseMove(object sender, MouseEventArgs e)
+		{
+			this.OnMouseMove(e);
+			if (BackgroundWorker.IsBusy)
+				return;
+			object[] parameters = { OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical };
+			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e, parameters));
+		}
 		private void pictureBox_MouseDown(object sender, MouseEventArgs e)
 		{
 			this.OnMouseDown(e);
@@ -177,7 +193,6 @@ namespace MyLibrary.Controls
 			{
 				AnchorPoint = e.Location;
 				OldBoxPos = ImageBoxPos;
-				IsDrag = true;
 				Cursor = new Cursor(new Bitmap(Properties.Resources.grab_cursor50).GetHicon());
 			}
 		}
@@ -186,16 +201,8 @@ namespace MyLibrary.Controls
 			this.OnMouseUp(e);
 			if (e.Button == MouseButtons.Right)
 			{
-				IsDrag = false;
 				Cursor = DefaultCursor;
 			}
-		}
-		private void pictureBox_MouseMove(object sender, MouseEventArgs e)
-		{
-			this.OnMouseMove(e);
-			if (!IsDrag || BackgroundWorker.IsBusy)
-				return;
-			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e));
 		}
 		private void pictureBox_MouseEnter(object sender, EventArgs e)
 		{
@@ -211,24 +218,47 @@ namespace MyLibrary.Controls
 		{
 			if (BackgroundWorker.IsBusy)
 				return;
-			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e));
+			object[] parameters = { OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical };
+			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e, parameters));
 		}
 		private void ScrollBarHorizontal_Scroll(object sender, ScrollEventArgs e)
 		{
 			if (BackgroundWorker.IsBusy)
 				return;
-			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e));
+			object[] parameters = { OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical };
+			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e, parameters));
 		}
 
 		//for developer
+		private void UpdateLayout()
+		{
+			ScrollBarHorizontal.Height = 15;
+			ScrollBarVertical.Width = 15;
+			ScrollBarHorizontal.Width = this.Width - ScrollBarVertical.Width;
+			ScrollBarVertical.Height = this.Height - ScrollBarHorizontal.Height;
+			ScrollBarHorizontal.Location = new Point(0, this.Height - ScrollBarHorizontal.Height);
+			ScrollBarVertical.Location = new Point(this.Width - ScrollBarVertical.Width, 0);
+			pictureBox.Width = this.Width - ScrollBarVertical.Width;
+			pictureBox.Height = this.Height - ScrollBarHorizontal.Height;
+			pictureBox.Location = new Point(0, 0);
+
+			DisplayImage = new Bitmap(pictureBox.Width, pictureBox.Height);
+		}
 		private void ImageViewer_Resize(object sender, EventArgs e)
 		{
 			UpdateLayout();
 		}
 		private void ImageViewer_Load(object sender, EventArgs e)
 		{
-			UpdateImage();
+			if (Image == null)
+			{
+				Image = new Bitmap(pictureBox.Width, pictureBox.Height);
+			}
 			UpdateLayout();
+			UpdateImage(OriginImage, DisplayImage, ScrollBarHorizontal, ScrollBarVertical);
+			BackgroundWorker_RunWorkerCompleted(null, null);
 		}
+
+		
 	}
 }
