@@ -34,6 +34,7 @@ namespace MyLibrary.Controls
 					OriginImage = value;
 					DisplayImage = UpdateDisplayImage(OriginImage);
 					UpdatePictureBox();
+					UpdateScrollBar(OriginImage);
 				}
 			}
 		}

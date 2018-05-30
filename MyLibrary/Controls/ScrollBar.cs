@@ -183,6 +183,7 @@ namespace MyLibrary.Controls
 
 		[Category("Metro Appearance")]
 		private int CapRadius => Thickness / 2;
+		[Category("Metro Appearance")]
 		public int Thickness => Orientation == ScrollBarOrientation.Vertical ? Width : Height;
 
 		private int ValueLength => _Maximum - _Minimum;
@@ -225,6 +226,7 @@ namespace MyLibrary.Controls
 		private Rectangle ThumbRectangle => orientation == ScrollBarOrientation.Vertical ?
 				new Rectangle(0, ThumbFrontPosition, Thickness, ThumbLength) :
 				new Rectangle(ThumbFrontPosition, 0, ThumbLength, Thickness);
+		[Category("Metro Appearance")]
 		public int BarLength
 		{
 			get => orientation == ScrollBarOrientation.Vertical ? Height : Width;
