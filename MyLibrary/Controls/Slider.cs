@@ -7,10 +7,10 @@ using MetroFramework.Drawing;
 using MetroFramework.Components;
 using MetroFramework.Interfaces;
 using System.Drawing.Drawing2D;
+using static MyLibrary.MyMethods;
 
 namespace MyLibrary.Controls
 {
-	[ToolboxBitmap(typeof(Slider))] //為工具箱提供點陣圖
 	[DefaultEvent("Scroll")]
 	public class Slider : Control, IMetroControl //繼承自Control，自己打造Slider
 	{
@@ -90,10 +90,10 @@ namespace MyLibrary.Controls
 			}
 		}
 
-		private int ThumbEdgeWidth { get { return MyMethods.Clamp(OrientHeight * (2f / 20f), int.MaxValue, 1); } }
-		private int ThumbHeight { get { return MyMethods.Clamp(OrientHeight * (10f / 20f), int.MaxValue, 6); } }
+		private int ThumbEdgeWidth { get { return Clamp(OrientHeight * (2f / 20f), int.MaxValue, 1); } }
+		private int ThumbHeight { get { return Clamp(OrientHeight * (10f / 20f), int.MaxValue, 6); } }
 		private int ThumbWidth { get { return ThumbHeight; } }
-		private int BarHeightY { get { return MyMethods.Clamp(OrientHeight * (5f / 20f), int.MaxValue, 4); } }
+		private int BarHeightY { get { return Clamp(OrientHeight * (5f / 20f), int.MaxValue, 4); } }
 		private int BarY { get { return (int)(OrientHeight * 0.5); } }
 		private float FontSize { get { return ThumbWidth * 0.4f; } }
 
@@ -380,7 +380,7 @@ namespace MyLibrary.Controls
 					delta = +(int)PageChange;
 					break;
 			}
-			Value = MyMethods.Clamp(Value + delta, BarMax, BarMin);
+			Value = Clamp(Value + delta, BarMax, BarMin);
 
 			OnValueChanged();
 			OnScroll(Value);
@@ -406,7 +406,7 @@ namespace MyLibrary.Controls
 		private void Mouse2Value(MouseEventArgs e)
 		{
 			MouseX = (orientation == SliderOrientation.Down || orientation == SliderOrientation.Up) ? e.Location.X : e.Location.Y;
-			MouseX = MyMethods.Clamp(MouseX, BarMaxX, BarMinX);
+			MouseX = Clamp(MouseX, BarMaxX, BarMinX);
 			Value = pixel2ax(MouseX);
 		}
 
@@ -461,7 +461,7 @@ namespace MyLibrary.Controls
 			if (!IsFocused) return;
 
 			int delta = (int)(e.Delta / Math.Abs(e.Delta) * ScrollChange);
-			Value = MyMethods.Clamp(Value + delta, BarMax, BarMin);
+			Value = Clamp(Value + delta, BarMax, BarMin);
 
 			OnValueChanged();
 			OnScroll(Value);

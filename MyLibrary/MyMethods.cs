@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Math;
 
 namespace MyLibrary
 {
@@ -100,6 +101,18 @@ namespace MyLibrary
 			return (int)(min2 + (value1 - min1) * r);
 		}
 
+		public static float LinConvert(float value1, float max1, float min1, float max2, float min2)
+		{
+			float r = (max2 - min2) / (max1 - min1);
+			return (min2 + (value1 - min1) * r);
+		}
+
+		public static double LinConvert(double value1, double max1, double min1, double max2, double min2)
+		{
+			double r = (max2 - min2) / (max1 - min1);
+			return (min2 + (value1 - min1) * r);
+		}
+
 		public static int Clamp(float value, int Max, int Min)
 		{
 			if (Min > Max)
@@ -125,6 +138,11 @@ namespace MyLibrary
 			if (Min > Max)
 				Swap(ref Max, ref Min);
 			return (value <= Max && value >= Min) ? true : false;
+		}
+
+		public static double LogBase(double Base, double num)
+		{
+			return Log(num) / Log(Base);
 		}
 	}
 }

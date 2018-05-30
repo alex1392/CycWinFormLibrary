@@ -32,7 +32,7 @@ namespace MyLibrary.Controls
 				else
 				{
 					OriginImage = value;
-					UpdateDisplayImage(OriginImage, ref DisplayImage);
+					DisplayImage = UpdateDisplayImage(OriginImage);
 					UpdatePictureBox();
 				}
 			}
@@ -58,12 +58,13 @@ namespace MyLibrary.Controls
 		}
 		private Point _ImageBoxPos = new Point(0, 0);
 
-		private void UpdateImageAndScrollBar(Image OriginImage, ref Image DisplayImage)
+		private Image UpdateImageAndScrollBar(Image OriginImage)
 		{
-			UpdateDisplayImage(OriginImage, ref DisplayImage);
+			DisplayImage = UpdateDisplayImage(OriginImage);
 			UpdateScrollBar(OriginImage);
+			return DisplayImage;
 		}
-		private void UpdateDisplayImage(Image OriginImage, ref Image DisplayImage)
+		private Image UpdateDisplayImage(Image OriginImage)
 		{
 			Rectangle CropRectangle = new Rectangle
 			{
@@ -79,6 +80,7 @@ namespace MyLibrary.Controls
 			{
 				graphics.DrawImage(OriginImage, DestRect, CropRectangle, GraphicsUnit.Pixel);
 			}
+			return DisplayImage;
 		}
 		private void UpdateScrollBar(Image OriginImage)
 		{
@@ -121,7 +123,7 @@ namespace MyLibrary.Controls
 					dX = (int)((e.X - AnchorPoint.X) / ZoomFactor);
 					dY = (int)((e.Y - AnchorPoint.Y) / ZoomFactor);
 					ImageBoxPos = new Point(OldBoxPos.X - dX, OldBoxPos.Y - dY);
-					UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
+					DisplayImage = UpdateImageAndScrollBar(OriginImage);
 				}//drag
 				else if (args.sender == this && e.Delta != 0 && pictureBox.ClientRectangle.Contains(e.Location))
 				{
@@ -129,7 +131,7 @@ namespace MyLibrary.Controls
 					ZoomFactor *= factor;
 					Point EffectiveMouseLocation = GetEffectiveMouseLocation(e.Location);
 					ImageBoxPos = new Point((int)(ImageBoxPos.X + EffectiveMouseLocation.X * (1 - 1 / factor)), (int)(ImageBoxPos.Y + EffectiveMouseLocation.Y * (1 - 1 / factor)));
-					UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
+					DisplayImage = UpdateImageAndScrollBar(OriginImage);
 				}//zoom
 			}
 			else if (args.e is ScrollEventArgs)
@@ -138,12 +140,12 @@ namespace MyLibrary.Controls
 				if (args.sender == ScrollBarVertical)
 				{
 					ImageBoxPos = new Point(ImageBoxPos.X, e.NewValue);
-					UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
+					DisplayImage = UpdateImageAndScrollBar(OriginImage);
 				}
 				else if (args.sender == ScrollBarHorizontal)
 				{
 					ImageBoxPos = new Point(e.NewValue, ImageBoxPos.Y);
-					UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
+					DisplayImage = UpdateImageAndScrollBar(OriginImage);
 				}
 			}
 		}
@@ -239,7 +241,7 @@ namespace MyLibrary.Controls
 				Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
 			}
 			UpdateLayout();
-			UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
+			DisplayImage = UpdateImageAndScrollBar(OriginImage);
 			UpdatePictureBox();
 		}
 		private void ImageViewer_Load(object sender, EventArgs e)
@@ -249,7 +251,7 @@ namespace MyLibrary.Controls
 				Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
 			}
 			UpdateLayout();
-			UpdateImageAndScrollBar(OriginImage, ref DisplayImage);
+			DisplayImage = UpdateImageAndScrollBar(OriginImage);
 			UpdatePictureBox();
 		}
 

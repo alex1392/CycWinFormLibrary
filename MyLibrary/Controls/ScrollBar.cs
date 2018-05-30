@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using static MyLibrary.MyMethods;
 
 namespace MyLibrary.Controls
 {
@@ -193,7 +194,7 @@ namespace MyLibrary.Controls
 			set
 			{
 				int ValueOld = _Value;
-				int tmpValue = MyMethods.Clamp(value, _Maximum, _Minimum);
+				int tmpValue = Clamp(value, _Maximum, _Minimum);
 				_Value = tmpValue;
 				_ThumbFrontPosition = Value2Position(_Value);
 
@@ -209,7 +210,7 @@ namespace MyLibrary.Controls
 			get => _ThumbFrontPosition;
 			set
 			{
-				int tmpValue = MyMethods.Clamp(value, ThumbFrontPositionMax, ThumbFrontPositionMin);
+				int tmpValue = Clamp(value, ThumbFrontPositionMax, ThumbFrontPositionMin);
 				_ThumbFrontPosition = tmpValue;
 				_Value = Position2Value(_ThumbFrontPosition);
 			}
@@ -238,7 +239,7 @@ namespace MyLibrary.Controls
 
 		private int Value2Position(int value)
 		{
-			return MyMethods.LinConvert(value, _Maximum, _Minimum, ThumbFrontPositionMax, ThumbFrontPositionMin);
+			return LinConvert(value, _Maximum, _Minimum, ThumbFrontPositionMax, ThumbFrontPositionMin);
 			//return (int)(ThumbFrontPositionMin + (value - _Minimum) * ((float)ThumbPositionLength / ValueLength));
 		}
 		private int Position2Value(int position)
@@ -246,7 +247,7 @@ namespace MyLibrary.Controls
 			if (position == 0) // 避免除以0
 				return _Minimum;
 			else
-				return MyMethods.LinConvert(position, ThumbFrontPositionMax, ThumbFrontPositionMin, _Maximum, _Minimum);
+				return LinConvert(position, ThumbFrontPositionMax, ThumbFrontPositionMin, _Maximum, _Minimum);
 				//return (int)(_Minimum + (position - ThumbFrontPositionMin) * ((float)ValueLength / ThumbPositionLength));
 		}
 		#endregion
@@ -423,7 +424,7 @@ namespace MyLibrary.Controls
 			}
 			set
 			{
-				_MouseWheelBarPartitions = MyMethods.Clamp(value, int.MaxValue, 1);
+				_MouseWheelBarPartitions = Clamp(value, int.MaxValue, 1);
 			}
 		}
 		protected override void OnMouseWheel(MouseEventArgs e)
@@ -509,7 +510,7 @@ namespace MyLibrary.Controls
 			{
 				int ValueOld = _Value;
 				int MousePosition = orientation == ScrollBarOrientation.Vertical ? e.Location.Y : e.Location.X;
-				MousePosition = MyMethods.Clamp(MousePosition, MousePositionMax, MousePositionMin);
+				MousePosition = Clamp(MousePosition, MousePositionMax, MousePositionMin);
 				int DeltaPosition = MousePosition - ClickPosition;
 				ThumbFrontPosition = ThumbFrontPositionOld + DeltaPosition; //Value Changed
 				OnScroll(ScrollEventType.ThumbTrack, ValueOld, _Value, scrollOrientation);
@@ -534,7 +535,7 @@ namespace MyLibrary.Controls
 			{
 				if (_LargeChange == 0)
 					_LargeChange = _SmallChange + 1;
-				_SmallChange = MyMethods.Clamp(value, _LargeChange, 0);
+				_SmallChange = Clamp(value, _LargeChange, 0);
 			}
 		}
 		private int _LargeChange;
@@ -549,7 +550,7 @@ namespace MyLibrary.Controls
 			}
 			set
 			{
-				_LargeChange = MyMethods.Clamp(value, ValueLength, _SmallChange);
+				_LargeChange = Clamp(value, ValueLength, _SmallChange);
 			}
 		}
 		protected override void OnKeyDown(KeyEventArgs e)
@@ -636,9 +637,9 @@ namespace MyLibrary.Controls
 		{
 			base.OnSizeChanged(e);
 
-			BarLength = MyMethods.Clamp(BarLength, 10000, Thickness + 1);
-			ThumbLength = MyMethods.Clamp(ThumbLength, BarLength, Thickness + 1);
-			ThumbFrontPosition = MyMethods.Clamp(ThumbFrontPosition, ThumbFrontPositionMax, ThumbFrontPositionMin);
+			BarLength = Clamp(BarLength, 10000, Thickness + 1);
+			ThumbLength = Clamp(ThumbLength, BarLength, Thickness + 1);
+			ThumbFrontPosition = Clamp(ThumbFrontPosition, ThumbFrontPositionMax, ThumbFrontPositionMin);
 
 			ThumbFrontPosition = ThumbFrontPosition; // 更新Value
 			Refresh();

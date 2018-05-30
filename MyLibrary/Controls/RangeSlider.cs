@@ -1,20 +1,16 @@
-﻿/* RangeSlider user control
- * Extended by Alex from MetroFramework
- */
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.ComponentModel;
 using System.Windows.Forms;
-
 using MetroFramework.Drawing;
 using MetroFramework.Components;
 using MetroFramework.Interfaces;
 using MetroFramework;
+using static MyLibrary.MyMethods;
 
 namespace MyLibrary.Controls
 {
-	[ToolboxBitmap(typeof(TrackBar))] //為工具箱提供點陣圖
 	[DefaultEvent("Scroll")]
 	public class RangeSlider : Control, IMetroControl //繼承自Control，自己打造TrackBar
 	{
@@ -74,10 +70,10 @@ namespace MyLibrary.Controls
 		private int orientWidth { get { return (Orientation == SliderOrientation.Horizontal) ? Width : Height; } }
 		private int orientHeight { get { return (Orientation == SliderOrientation.Horizontal) ? Height: Width; } }
 
-		private int thumbRadius { get { return MyMethods.Clamp(orientHeight * (6.5f / 20f), int.MaxValue, 3); } }
-		private int thumbEdgeWidth { get { return MyMethods.Clamp(orientHeight * (2f / 20f), int.MaxValue, 1); } }
+		private int thumbRadius { get { return Clamp(orientHeight * (6.5f / 20f), int.MaxValue, 3); } }
+		private int thumbEdgeWidth { get { return Clamp(orientHeight * (2f / 20f), int.MaxValue, 1); } }
 		private int barY { get { return orientHeight / 2; } }
-		private int barHeightY { get { return MyMethods.Clamp(orientHeight * (8f / 20f), int.MaxValue, 4); } }
+		private int barHeightY { get { return Clamp(orientHeight * (8f / 20f), int.MaxValue, 4); } }
 		private float fontSize { get { return thumbRadius * 0.7f; } }
 		
 		private int offsetMaxMinX { get { return (!Reverse) ? thumbRadius * 2 : -thumbRadius * 2; } }
@@ -341,14 +337,14 @@ namespace MyLibrary.Controls
 			switch (selectOn)
 			{
 				case ("Max"):
-					RangeMax = MyMethods.Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
+					RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
 					break;
 				case ("Min"):
-					RangeMin = MyMethods.Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
+					RangeMin = Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
 					break;
 				case ("range"):
-					RangeMax = MyMethods.Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
-					RangeMin = MyMethods.Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
+					RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
+					RangeMin = Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
 					break;
 			}
 
@@ -379,15 +375,15 @@ namespace MyLibrary.Controls
 			switch (selectOn)
 			{
 				case ("Max"):
-					mouseX = MyMethods.Clamp(mouseX, barMaxX, rangeMinX + offsetMaxMinX);
+					mouseX = Clamp(mouseX, barMaxX, rangeMinX + offsetMaxMinX);
 					RangeMax = pixel2ax(mouseX);
 					break;
 				case ("Min"):
-					mouseX = MyMethods.Clamp(mouseX, rangeMaxX - offsetMaxMinX, barMinX);
+					mouseX = Clamp(mouseX, rangeMaxX - offsetMaxMinX, barMinX);
 					RangeMin = pixel2ax(mouseX);
 					break;
 				case ("range"):
-					mouseX = MyMethods.Clamp(mouseX, pressX + disMaxMax, pressX - disMinMin);
+					mouseX = Clamp(mouseX, pressX + disMaxMax, pressX - disMinMin);
 					RangeMin = pixel2ax(mouseX - disMinPress);
 					RangeMax = pixel2ax(mouseX + disMaxPress);
 					break;
@@ -422,7 +418,7 @@ namespace MyLibrary.Controls
 				selectOn = "Max";
 			else if (Math.Abs(disMinPress) < thumbRadius)
 				selectOn = "Min";
-			else if (MyMethods.IsIn<int>(pressX, rangeMaxX, rangeMinX)) 
+			else if (IsIn<int>(pressX, rangeMaxX, rangeMinX)) 
 				selectOn = "range";
 			else
 				selectOn = null;
@@ -472,14 +468,14 @@ namespace MyLibrary.Controls
 			switch (selectOn)
 			{
 				case ("Max"):
-					RangeMax = MyMethods.Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
+					RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
 					break;
 				case ("Min"):
-					RangeMin = MyMethods.Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
+					RangeMin = Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
 					break;
 				case ("range"):
-					RangeMax = MyMethods.Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
-					RangeMin = MyMethods.Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
+					RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
+					RangeMin = Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
 					break;
 			}
 

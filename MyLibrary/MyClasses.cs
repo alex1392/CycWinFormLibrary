@@ -31,10 +31,16 @@ namespace MyLibrary
 		public object sender;
 		public EventArgs e;
 		public object[] parameters;
+		public object[] results;
 
 		public BackgroundArgs(object sender)
 		{
 			this.sender = sender;
+		}
+		public BackgroundArgs(EventArgs e, object[] parameters)
+		{
+			this.e = e;
+			this.parameters = parameters;
 		}
 		public BackgroundArgs(object sender, EventArgs e)
 		{
