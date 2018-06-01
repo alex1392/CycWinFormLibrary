@@ -96,15 +96,22 @@ namespace MyLibrary.Controls
 			using (Graphics graphics = Graphics.FromImage(DisplayImage))
 			{
 				graphics.DrawImage(OriginImage, DestRect, CropRectangle, GraphicsUnit.Pixel);
-				using (Pen pen = new Pen(Color.Black, 1))
+				if (OriginImage != null)
 				{
-					graphics.DrawRectangle(pen, BoundaryRectangle);
+					using (Pen pen = new Pen(Color.Black, 1))
+					{
+						graphics.DrawRectangle(pen, BoundaryRectangle);
+					}
 				}
 			}
 			return DisplayImage;
 		}
 		private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs DoWork_e)
 		{
+			if (this.OriginImage == null)
+			{
+				return;
+			}
 			BackgroundArgs args = (BackgroundArgs)DoWork_e.Argument;
 			Image OriginImage = (Image)args.parameters[0]; //使欄位值變成區域變數
 			Image DisplayImage = (Image)args.parameters[1]; //讓擴充功能不會共搶變數
@@ -148,15 +155,15 @@ namespace MyLibrary.Controls
 		private void UpdateScrollBar()
 		{
 			ScrollBarHorizontal.Maximum = OriginImage.Width - EffectivePictureBoxWidth;
+			ScrollBarHorizontal.ThumbLength = ScrollBarHorizontal.Width * EffectivePictureBoxWidth / OriginImage.Width; //一定要比Value先改，否則邊界值會出錯
 			ScrollBarHorizontal.Value = ImageBoxPos.X;
-			ScrollBarHorizontal.ThumbLength = ScrollBarHorizontal.Width * EffectivePictureBoxWidth / OriginImage.Width;
 			ScrollBarHorizontal.SmallChange = (int)(ScrollBarHorizontal.Maximum * ScrollBarHorizontal.ThumbLength / ScrollBarHorizontal.BarLength / 10f);
 			ScrollBarHorizontal.LargeChange = (int)(ScrollBarHorizontal.Maximum * ScrollBarHorizontal.ThumbLength / ScrollBarHorizontal.BarLength / 5f);
 			ScrollBarHorizontal.MouseWheelBarPartitions = (int)(10 * ScrollBarHorizontal.BarLength / (float)ScrollBarHorizontal.ThumbLength);
 
 			ScrollBarVertical.Maximum = OriginImage.Height - EffectivePictureBoxHeight;
-			ScrollBarVertical.Value = ImageBoxPos.Y;
 			ScrollBarVertical.ThumbLength = ScrollBarVertical.Height * EffectivePictureBoxHeight / OriginImage.Height;
+			ScrollBarVertical.Value = ImageBoxPos.Y;
 			ScrollBarVertical.SmallChange = (int)(ScrollBarVertical.Maximum * ScrollBarVertical.ThumbLength / ScrollBarVertical.BarLength / 10f);
 			ScrollBarVertical.LargeChange = (int)(ScrollBarVertical.Maximum * ScrollBarVertical.ThumbLength / ScrollBarVertical.BarLength / 5f);
 			ScrollBarVertical.MouseWheelBarPartitions = (int)(10 * ScrollBarVertical.BarLength / (float)ScrollBarVertical.ThumbLength);
@@ -170,6 +177,10 @@ namespace MyLibrary.Controls
 		}
 		private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
+			if (OriginImage == null)
+			{
+				return;
+			}
 			DisplayImage = (Image)e.Result;
 			UpdateScrollBar();
 			UpdatePictureBox();
@@ -261,22 +272,26 @@ namespace MyLibrary.Controls
 		}
 		private void ImageViewer_Resize(object sender, EventArgs e)
 		{
+			UpdateLayout();
 			if (Image == null)
 			{
-				Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
+				//Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
+				return;
 			}
-			UpdateLayout();
 			DisplayImage = UpdateDisplayImage(OriginImage);
+			UpdateScrollBar();
 			UpdatePictureBox();
 		}
 		private void ImageViewer_Load(object sender, EventArgs e)
 		{
+			UpdateLayout();
 			if (Image == null)
 			{
-				Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
+				//Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
+				return;
 			}
-			UpdateLayout();
 			DisplayImage = UpdateDisplayImage(OriginImage);
+			UpdateScrollBar();
 			UpdatePictureBox();
 		}
 

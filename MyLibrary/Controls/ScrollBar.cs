@@ -207,6 +207,7 @@ namespace MyLibrary.Controls
 			{
 				_ThumbFrontPosition = Clamp(value, ThumbFrontPositionMax, ThumbFrontPositionMin);
 				_Value = Position2Value(_ThumbFrontPosition);
+				Invalidate();
 			}
 		}
 		private int _ThumbFrontPosition;
