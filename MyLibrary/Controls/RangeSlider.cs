@@ -71,7 +71,7 @@ namespace MyLibrary.Controls
 		private int orientHeight { get { return (Orientation == SliderOrientation.Horizontal) ? Height: Width; } }
 
 		private int thumbRadius { get { return Clamp(orientHeight * (6.5f / 20f), int.MaxValue, 3); } }
-		private int thumbEdgeWidth { get { return Clamp(orientHeight * (2f / 20f), int.MaxValue, 1); } }
+		private int thumbEdgeWidth { get { return Clamp(orientHeight * (2.5f / 20f), int.MaxValue, 1); } }
 		private int barY { get { return orientHeight / 2; } }
 		private int barHeightY { get { return Clamp(orientHeight * (8f / 20f), int.MaxValue, 4); } }
 		private float fontSize { get { return thumbRadius * 0.7f; } }
@@ -94,7 +94,7 @@ namespace MyLibrary.Controls
 		private int rangeWidthX { get { return rangeMaxX - rangeMinX; } }
 
 		private bool isPressed = false;
-		private bool isFocused = false;
+		private bool isHover = false;
 
 		private string selectOn;
 		private int pressX;
@@ -169,32 +169,43 @@ namespace MyLibrary.Controls
 							 ControlStyles.UserPaint, true);
 
 			BackColor = Color.Transparent;
+			SetProperties();
+		}
+
+		private void SetProperties()
+		{
+			HoverTimer = new Timer();
+			HoverTimer.Tick += HoverTimer_Tick;
+			HoverTimer.Interval = 10;
 		}
 
 		#endregion
 
 		#region Paint Methods
 
+		private Color backColor => (CustomBackground) ? BackColor : MetroPaint.BackColor.Form(Theme);
+		private Color thumbColor;
+		private Color barColor;
+		private Color foreColor;
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			Color backColor, thumbColor, barColor, foreColor;
-
-			if (CustomBackground)
-				backColor = BackColor;
-			else
-				backColor = MetroPaint.BackColor.Form(Theme);
-
 			if (!Enabled)
 			{
 				thumbColor = MetroPaint.BackColor.RangeSlider.Thumb.Disabled(Theme);
 				barColor = MetroPaint.BackColor.RangeSlider.Bar.Disabled(Theme);
 				foreColor = MetroPaint.ForeColor.RangeSlider.Disabled(Theme);
 			}
-			else if (isFocused)
+			else if (isPressed)
 			{
-				thumbColor = MetroPaint.BackColor.RangeSlider.Thumb.Focused(Theme);
-				barColor = MetroPaint.BackColor.RangeSlider.Bar.Focused(Theme);
-				foreColor = MetroPaint.ForeColor.RangeSlider.Focused(Theme);
+				thumbColor = MetroPaint.BackColor.RangeSlider.Thumb.Pressed(Theme);
+				barColor = MetroPaint.BackColor.RangeSlider.Bar.Pressed(Theme);
+				foreColor = MetroPaint.ForeColor.RangeSlider.Pressed(Theme);
+			}
+			else if (isHover)
+			{
+				thumbColor = MetroPaint.BackColor.RangeSlider.Thumb.Hover(Theme);
+				barColor = MetroPaint.BackColor.RangeSlider.Bar.Hover(Theme);
+				foreColor = MetroPaint.ForeColor.RangeSlider.Hover(Theme);
 			} 
 			else
 			{
@@ -202,10 +213,18 @@ namespace MyLibrary.Controls
 				barColor = MetroPaint.BackColor.RangeSlider.Bar.Normal(Theme);
 				foreColor = MetroPaint.ForeColor.RangeSlider.Normal(Theme);
 			}
-			e.Graphics.Clear(backColor); // 清除整個繪圖介面，並使用指定的背景色彩填滿它。
+
+			if (HoverTimer.Enabled)
+			{
+				barColor = Interpolate(MetroPaint.BackColor.RangeSlider.Bar.Normal(Theme), MetroPaint.BackColor.RangeSlider.Bar.Hover(Theme), HoverRatio);
+				thumbColor = Interpolate(MetroPaint.BackColor.RangeSlider.Thumb.Normal(Theme), MetroPaint.BackColor.RangeSlider.Thumb.Hover(Theme), HoverRatio);
+				foreColor = Interpolate(MetroPaint.ForeColor.RangeSlider.Normal(Theme), MetroPaint.ForeColor.RangeSlider.Hover(Theme), HoverRatio);
+			}
+
+			e.Graphics.Clear(backColor);
 			DrawRangeSlider(e.Graphics, barColor, thumbColor, foreColor);
 
-			if (false && isFocused)
+			if (false && isHover)
 				ControlPaint.DrawFocusRectangle(e.Graphics, ClientRectangle);
 		}
 
@@ -241,6 +260,7 @@ namespace MyLibrary.Controls
 				rangeMinRect = new Rectangle(barY - thumbRadius, rangeMinX - thumbRadius, thumbRadius * 2, thumbRadius * 2);
 				rangeMaxRect = new Rectangle(barY - thumbRadius, rangeMaxX - thumbRadius, thumbRadius * 2, thumbRadius * 2);
 			}
+
 			g.DrawLine(barPen, barLPtL, barLPtR);
 			g.DrawLine(barPen, barRPtL, barRPtR);
 			g.DrawLine(rangePen, rangePtL, rangePtR);
@@ -250,16 +270,29 @@ namespace MyLibrary.Controls
 			g.FillEllipse(thumbBrushInner, rangeMaxRect);
 			TextRenderer.DrawText(g, " " + RangeMin.ToString(), font, rangeMinRect, foreColor, Color.Transparent, MetroPaint.GetTextFormatFlags(ContentAlignment.MiddleCenter));
 			TextRenderer.DrawText(g, " " + RangeMax.ToString(), font, rangeMaxRect, foreColor, Color.Transparent, MetroPaint.GetTextFormatFlags(ContentAlignment.MiddleCenter));
-
 		}
 
+		#endregion
+
+		#region Animation
+		private Timer HoverTimer;
+		private float HoverRatio; // 0~1
+		private void HoverTimer_Tick(object sender, EventArgs e)
+		{
+			HoverRatio += 0.05f;
+			Refresh();
+
+			if (HoverRatio >= 1)
+			{
+				HoverTimer.Stop();
+			}
+		}
 		#endregion
 
 		#region Focus Methods
 
 		protected override void OnGotFocus(EventArgs e)
 		{
-			isFocused = true;
 			Invalidate();
 
 			base.OnGotFocus(e);
@@ -267,9 +300,6 @@ namespace MyLibrary.Controls
 
 		protected override void OnLostFocus(EventArgs e)
 		{
-			isFocused = false;
-			isFocused = false;
-			isPressed = false;
 			Invalidate();
 
 			base.OnLostFocus(e);
@@ -277,7 +307,6 @@ namespace MyLibrary.Controls
 
 		protected override void OnEnter(EventArgs e)
 		{
-			isFocused = true;
 			Invalidate();
 
 			base.OnEnter(e);
@@ -285,9 +314,6 @@ namespace MyLibrary.Controls
 
 		protected override void OnLeave(EventArgs e)
 		{
-			isFocused = false;
-			isFocused = false;
-			isPressed = false;
 			Invalidate();
 
 			base.OnLeave(e);
@@ -300,7 +326,7 @@ namespace MyLibrary.Controls
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
 			base.OnKeyDown(e);
-			if (!isFocused || selectOn == null) return;
+			if (!isHover || selectOn == null) return;
 
 			int delta = 0;
 			switch (e.KeyCode)
@@ -395,10 +421,20 @@ namespace MyLibrary.Controls
 		protected override void OnMouseEnter(EventArgs e)
 		{
 			Focus();
-			isFocused = true;
+			isHover = true;
+			HoverRatio = 0;
+			HoverTimer.Start();
 			Invalidate();
 
 			base.OnMouseEnter(e);
+		}
+		protected override void OnMouseLeave(EventArgs e)
+		{
+			isHover = false;
+			HoverTimer.Stop();
+			Invalidate();
+
+			base.OnMouseLeave(e);
 		}
 
 		protected override void OnMouseDown(MouseEventArgs e)
@@ -426,6 +462,16 @@ namespace MyLibrary.Controls
 			Mouse2Value(e);
 
 			//OnScroll();
+			HoverTimer.Stop();
+			Refresh();
+		}
+		protected override void OnMouseUp(MouseEventArgs e)
+		{
+			base.OnMouseUp(e);
+			isPressed = false;
+
+			OnValueChanged();
+			//OnScroll();
 			Invalidate();
 		}
 
@@ -440,29 +486,10 @@ namespace MyLibrary.Controls
 			OnScroll();
 			Invalidate(); //更新畫面
 		}
-
-		protected override void OnMouseUp(MouseEventArgs e)
-		{
-			base.OnMouseUp(e);
-			isPressed = false;
-
-			OnValueChanged();
-			//OnScroll();
-			Invalidate();
-		}
-
-		protected override void OnMouseLeave(EventArgs e)
-		{
-			isFocused = false;
-			Invalidate();
-
-			base.OnMouseLeave(e);
-		}
-
 		protected override void OnMouseWheel(MouseEventArgs e)
 		{
 			base.OnMouseWheel(e);
-			if (!isFocused || selectOn == null) return;
+			if (!isHover || selectOn == null) return;
 
 			int delta = (int)(e.Delta / Math.Abs(e.Delta) * ScrollChange);
 			switch (selectOn)
