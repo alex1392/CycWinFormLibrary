@@ -198,10 +198,6 @@ namespace MyLibrary.Controls
 				int tmpValue = Clamp(value, _Maximum, _Minimum);
 				_Value = tmpValue;
 				_ThumbFrontPosition = Value2Position(_Value);
-
-				if (ValueOld != _Value)
-					OnScroll(ScrollEventType.ThumbPosition, ValueOld, _Value, scrollOrientation);
-
 				Invalidate();
 			}
 		}
@@ -559,6 +555,8 @@ namespace MyLibrary.Controls
 		{
 			base.OnKeyDown(e);
 
+			bool isScroll = true;
+			int ValueOld = _Value;
 			switch (e.KeyCode)
 			{
 				case Keys.Up:
@@ -606,7 +604,14 @@ namespace MyLibrary.Controls
 						break;
 					}
 				default:
-					break;
+					{
+						isScroll = false;
+						break;
+					}
+			}
+			if (isScroll)
+			{
+				OnScroll(ScrollEventType.ThumbPosition, ValueOld, _Value, scrollOrientation);
 			}
 			Invalidate();
 		}

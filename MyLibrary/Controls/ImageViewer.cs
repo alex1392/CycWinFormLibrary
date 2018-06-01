@@ -20,7 +20,19 @@ namespace MyLibrary.Controls
 			InitializeComponent();
 		}
 		private Image OriginImage;
-		private Image DisplayImage;
+
+		int changeTimes = 0;
+		private Image _DisplayImage;
+		private Image DisplayImage
+		{
+			get => _DisplayImage;
+			set
+			{
+				_DisplayImage = value;
+				changeTimes++;
+				//Console.WriteLine("DisplayImage Changed {0}", changeTimes);
+			}
+		}
 		[Category("Metro Appearance")]
 		public Image Image
 		{
@@ -32,9 +44,9 @@ namespace MyLibrary.Controls
 				else
 				{
 					OriginImage = value;
-					DisplayImage = UpdateDisplayImage(OriginImage);
+					UpdateDisplayImage();
 					UpdatePictureBox();
-					UpdateScrollBar(OriginImage);
+					UpdateScrollBar();
 				}
 			}
 		}
@@ -51,21 +63,13 @@ namespace MyLibrary.Controls
 			{
 				if (OriginImage == null)
 					return;
-				_ImageBoxPos.X = IsImageWidthExceed ?
-					MyMethods.Clamp(value.X, OriginImage.Width - EffectivePictureBoxWidth, 0) : 0;
-				_ImageBoxPos.Y = IsImageHeightExceed ?
-					MyMethods.Clamp(value.Y, OriginImage.Height - EffectivePictureBoxHeight, 0) : 0;
+				_ImageBoxPos.X = MyMethods.Clamp(value.X, OriginImage.Width - EffectivePictureBoxWidth, 0);
+				_ImageBoxPos.Y = MyMethods.Clamp(value.Y, OriginImage.Height - EffectivePictureBoxHeight, 0);
 			}
 		}
 		private Point _ImageBoxPos = new Point(0, 0);
 
-		private Image UpdateImageAndScrollBar(Image OriginImage)
-		{
-			DisplayImage = UpdateDisplayImage(OriginImage);
-			UpdateScrollBar(OriginImage);
-			return DisplayImage;
-		}
-		private Image UpdateDisplayImage(Image OriginImage)
+		private void UpdateDisplayImage()
 		{
 			Rectangle CropRectangle = new Rectangle
 			{
@@ -81,11 +85,9 @@ namespace MyLibrary.Controls
 			{
 				graphics.DrawImage(OriginImage, DestRect, CropRectangle, GraphicsUnit.Pixel);
 			}
-			return DisplayImage;
 		}
-		private void UpdateScrollBar(Image OriginImage)
+		private void UpdateScrollBar()
 		{
-			
 			ScrollBarHorizontal.Maximum = OriginImage.Width - EffectivePictureBoxWidth;
 			ScrollBarHorizontal.Value = ImageBoxPos.X;
 			ScrollBarHorizontal.ThumbLength = ScrollBarHorizontal.Width * EffectivePictureBoxWidth / OriginImage.Width;
@@ -105,7 +107,7 @@ namespace MyLibrary.Controls
 			ScrollBarVertical.Enabled = IsImageHeightExceed ? true : false;
 			ScrollBarHorizontal.Enabled = IsImageWidthExceed ? true : false;
 
-			pictureBox.Image = (Bitmap)DisplayImage.Clone(); //使用背景工作時 必須在顯示時Clone!!!!
+			pictureBox.Image = DisplayImage;
 		}
 
 		//background worker
@@ -124,7 +126,7 @@ namespace MyLibrary.Controls
 					dX = (int)((e.X - AnchorPoint.X) / ZoomFactor);
 					dY = (int)((e.Y - AnchorPoint.Y) / ZoomFactor);
 					ImageBoxPos = new Point(OldBoxPos.X - dX, OldBoxPos.Y - dY);
-					DisplayImage = UpdateImageAndScrollBar(OriginImage);
+					UpdateDisplayImage();
 				}//drag
 				else if (args.sender == this && e.Delta != 0 && pictureBox.ClientRectangle.Contains(e.Location))
 				{
@@ -132,7 +134,7 @@ namespace MyLibrary.Controls
 					ZoomFactor *= factor;
 					Point EffectiveMouseLocation = GetEffectiveMouseLocation(e.Location);
 					ImageBoxPos = new Point((int)(ImageBoxPos.X + EffectiveMouseLocation.X * (1 - 1 / factor)), (int)(ImageBoxPos.Y + EffectiveMouseLocation.Y * (1 - 1 / factor)));
-					DisplayImage = UpdateImageAndScrollBar(OriginImage);
+					UpdateDisplayImage();
 				}//zoom
 			}
 			else if (args.e is ScrollEventArgs)
@@ -141,18 +143,20 @@ namespace MyLibrary.Controls
 				if (args.sender == ScrollBarVertical)
 				{
 					ImageBoxPos = new Point(ImageBoxPos.X, e.NewValue);
-					DisplayImage = UpdateImageAndScrollBar(OriginImage);
+					UpdateDisplayImage();
 				}
 				else if (args.sender == ScrollBarHorizontal)
 				{
 					ImageBoxPos = new Point(e.NewValue, ImageBoxPos.Y);
-					DisplayImage = UpdateImageAndScrollBar(OriginImage);
+					UpdateDisplayImage();
 				}
 			}
 		}
 		private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
+			UpdateScrollBar();
 			UpdatePictureBox();
+			//Console.WriteLine("complete {0}", changeTimes);
 		}
 
 		//Zoom
@@ -177,6 +181,7 @@ namespace MyLibrary.Controls
 			if (BackgroundWorker.IsBusy)
 				return;
 			object[] parameters = { OriginImage, DisplayImage };
+			//Console.WriteLine("movenow {0}", changeTimes);
 			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e, parameters));
 		}
 		private void pictureBox_MouseDown(object sender, MouseEventArgs e)
@@ -211,7 +216,6 @@ namespace MyLibrary.Controls
 		{
 			if (BackgroundWorker.IsBusy)
 				return;
-
 			BackgroundWorker.RunWorkerAsync(new BackgroundArgs(sender, e));
 		}
 		private void ScrollBarHorizontal_Scroll(object sender, ScrollEventArgs e)
@@ -242,7 +246,7 @@ namespace MyLibrary.Controls
 				Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
 			}
 			UpdateLayout();
-			DisplayImage = UpdateImageAndScrollBar(OriginImage);
+			UpdateDisplayImage();
 			UpdatePictureBox();
 		}
 		private void ImageViewer_Load(object sender, EventArgs e)
@@ -252,7 +256,7 @@ namespace MyLibrary.Controls
 				Image = new Bitmap(pictureBox.Width, pictureBox.Height); //避免設計工具抓不到起始OriginImage
 			}
 			UpdateLayout();
-			DisplayImage = UpdateImageAndScrollBar(OriginImage);
+			UpdateDisplayImage();
 			UpdatePictureBox();
 		}
 
