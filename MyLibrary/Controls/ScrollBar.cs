@@ -97,7 +97,7 @@ namespace MyLibrary.Controls
 		#endregion
 
 		#region Fields
-		
+
 		private ScrollOrientation scrollOrientation = ScrollOrientation.HorizontalScroll;
 		private ScrollBarOrientation orientation = ScrollBarOrientation.Horizontal;
 		[Category("Metro Appearance")]
@@ -249,7 +249,6 @@ namespace MyLibrary.Controls
 		#endregion
 
 		#region Constructor
-
 		public ScrollBar()
 		{
 			SetStyle(ControlStyles.OptimizedDoubleBuffer |
@@ -258,58 +257,42 @@ namespace MyLibrary.Controls
 							 ControlStyles.AllPaintingInWmPaint |
 							 ControlStyles.UserPaint, true);
 
-			Width = 200;
-			Height = 10;
-			ThumbLength = Height + 1;
-
+			SetProperties();
 			Refresh();
 		}
-
 		public ScrollBar(ScrollBarOrientation orientation)
 				: this()
 		{
 			Orientation = orientation;
 		}
-
 		public ScrollBar(ScrollBarOrientation orientation, int width)
 				: this(orientation)
 		{
 			Width = width;
 		}
-
 		public bool HitTest(Point point)
 		{
 			return ThumbRectangle.Contains(point);
 		}
+		private void SetProperties()
+		{
+			Width = 200;
+			Height = 10;
+			ThumbLength = Height + 1;
 
+			HoverTimer = new Timer();
+			HoverTimer.Tick += HoverTimer_Tick;
+			HoverTimer.Interval = 10;
+		}
 		#endregion
 
 		#region Paint Methods
-		protected override void OnPaintBackground(PaintEventArgs e)
-		{
-			// no painting here
-		}
-
+		
+		private Color backColor => (Parent is IMetroControl || Parent == null) ? MetroPaint.BackColor.Form(Theme) : Parent.BackColor;
+		private Color thumbColor;
+		private Color barColor;
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			Color backColor, thumbColor, barColor;
-
-			if (Parent != null)
-			{
-				if (Parent is IMetroControl)
-				{
-					backColor = MetroPaint.BackColor.Form(Theme);
-				}
-				else
-				{
-					backColor = Parent.BackColor;
-				}
-			}
-			else
-			{
-				backColor = MetroPaint.BackColor.Form(Theme);
-			}
-
 			if (IsHovered && !IsPressed && Enabled)
 			{
 				thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Hover(Theme);
@@ -329,6 +312,12 @@ namespace MyLibrary.Controls
 			{
 				thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Normal(Theme);
 				barColor = MetroPaint.BackColor.ScrollBar.Bar.Normal(Theme);
+			}
+
+			if (HoverTimer.Enabled)
+			{
+				barColor = Interpolate(MetroPaint.BackColor.ScrollBar.Bar.Normal(Theme), MetroPaint.BackColor.ScrollBar.Bar.Hover(Theme), HoverRatio);
+				thumbColor = Interpolate(MetroPaint.BackColor.ScrollBar.Thumb.Normal(Theme), MetroPaint.BackColor.ScrollBar.Thumb.Hover(Theme), HoverRatio);
 			}
 
 			e.Graphics.Clear(backColor);
@@ -373,6 +362,21 @@ namespace MyLibrary.Controls
 			}
 		}
 
+		#endregion
+
+		#region Animation
+		private Timer HoverTimer;
+		private float HoverRatio; // 0~1
+		private void HoverTimer_Tick(object sender, EventArgs e)
+		{
+			HoverRatio += 0.05f;
+			Refresh();
+
+			if (HoverRatio >= 1)
+			{
+				HoverTimer.Stop();
+			}
+		}
 		#endregion
 
 		#region Focus Methods
@@ -446,7 +450,7 @@ namespace MyLibrary.Controls
 			if (e.Button == MouseButtons.Left)
 			{
 				IsPressed = true;
-				var ClickLocation = e.Location;
+				Point ClickLocation = e.Location;
 				ClickPosition = orientation == ScrollBarOrientation.Vertical ? e.Location.Y : e.Location.X;
 				ThumbFrontPositionOld = ThumbFrontPosition;
 				MousePositionMin = ClickPosition - (ThumbFrontPosition - ThumbFrontPositionMin);
@@ -454,7 +458,6 @@ namespace MyLibrary.Controls
 				if (ThumbRectangle.Contains(ClickLocation))
 				{
 					IsThumbClicked = true;
-					Invalidate(ThumbRectangle);
 				}
 				else
 				{
@@ -464,8 +467,9 @@ namespace MyLibrary.Controls
 						Value += SmallChange;
 				}
 			}
+			HoverTimer.Stop();
+			Refresh();
 		}
-
 		protected override void OnMouseUp(MouseEventArgs e)
 		{
 			IsPressed = false;
@@ -482,24 +486,6 @@ namespace MyLibrary.Controls
 				Invalidate();
 			}
 		}
-
-		protected override void OnMouseEnter(EventArgs e)
-		{
-			Focus();
-			IsHovered = true;
-			Invalidate();
-
-			base.OnMouseEnter(e);
-		}
-
-		protected override void OnMouseLeave(EventArgs e)
-		{
-			IsHovered = false;
-			Invalidate();
-
-			base.OnMouseLeave(e);
-		}
-
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
@@ -515,7 +501,24 @@ namespace MyLibrary.Controls
 				Invalidate();
 			}
 		}
+		protected override void OnMouseEnter(EventArgs e)
+		{
+			Focus();
+			IsHovered = true;
+			HoverRatio = 0;
+			HoverTimer.Start();
+			Invalidate();
 
+			base.OnMouseEnter(e);
+		}
+		protected override void OnMouseLeave(EventArgs e)
+		{
+			IsHovered = false;
+			HoverTimer.Stop();
+			Invalidate();
+
+			base.OnMouseLeave(e);
+		}
 		#endregion
 
 		#region Keyboard Methods

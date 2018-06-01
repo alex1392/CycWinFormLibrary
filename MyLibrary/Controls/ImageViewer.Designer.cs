@@ -67,7 +67,7 @@
 			this.ScrollBarHorizontal.Theme = MetroFramework.MetroThemeStyle.Light;
 			this.ScrollBarHorizontal.ThumbLength = 28;
 			this.ScrollBarHorizontal.UseBarColor = true;
-			this.ScrollBarHorizontal.Value = 1;
+			this.ScrollBarHorizontal.Value = 0;
 			this.ScrollBarHorizontal.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScrollBarHorizontal_Scroll);
 			// 
 			// ScrollBarVertical
@@ -89,7 +89,7 @@
 			this.ScrollBarVertical.Theme = MetroFramework.MetroThemeStyle.Light;
 			this.ScrollBarVertical.ThumbLength = 60;
 			this.ScrollBarVertical.UseBarColor = true;
-			this.ScrollBarVertical.Value = 11;
+			this.ScrollBarVertical.Value = 0;
 			this.ScrollBarVertical.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScrollBarVertical_Scroll);
 			// 
 			// BackgroundWorker

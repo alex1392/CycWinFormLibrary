@@ -113,6 +113,20 @@ namespace MyLibrary
 			return (min2 + (value1 - min1) * r);
 		}
 
+		public static float Interpolate(int StartValue, int EndValue, float Ratio)
+		{
+			return StartValue + Ratio * (EndValue - StartValue);
+		}
+
+		public static Color Interpolate(Color StartColor, Color EndColor, float Ratio)
+		{
+			int A = (int)Interpolate(StartColor.A, EndColor.A, Ratio);
+			int R = (int)Interpolate(StartColor.R, EndColor.R, Ratio);
+			int G = (int)Interpolate(StartColor.G, EndColor.G, Ratio);
+			int B = (int)Interpolate(StartColor.B, EndColor.B, Ratio);
+			return Color.FromArgb(A, R, G, B);
+		}
+
 		public static int Clamp(float value, int Max, int Min)
 		{
 			if (Min > Max)
