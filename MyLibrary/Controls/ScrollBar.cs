@@ -194,9 +194,7 @@ namespace MyLibrary.Controls
 			get => _Value;
 			set
 			{
-				int ValueOld = _Value;
-				int tmpValue = Clamp(value, _Maximum, _Minimum);
-				_Value = tmpValue;
+				_Value = Clamp(value, _Maximum, _Minimum);
 				_ThumbFrontPosition = Value2Position(_Value);
 				Invalidate();
 			}
@@ -207,8 +205,7 @@ namespace MyLibrary.Controls
 			get => _ThumbFrontPosition;
 			set
 			{
-				int tmpValue = Clamp(value, ThumbFrontPositionMax, ThumbFrontPositionMin);
-				_ThumbFrontPosition = tmpValue;
+				_ThumbFrontPosition = Clamp(value, ThumbFrontPositionMax, ThumbFrontPositionMin);
 				_Value = Position2Value(_ThumbFrontPosition);
 			}
 		}
@@ -429,8 +426,10 @@ namespace MyLibrary.Controls
 		{
 			base.OnMouseWheel(e);
 
+			int ValueOld = _Value;
 			int v = (int)(e.Delta / 60f * ValueLength / MouseWheelBarPartitions);
 			Value = orientation == ScrollBarOrientation.Vertical ? Value - v : Value + v; //Position Changed
+			OnScroll(ScrollEventType.ThumbPosition, ValueOld, _Value, scrollOrientation);
 		}
 
 		private bool IsHovered;

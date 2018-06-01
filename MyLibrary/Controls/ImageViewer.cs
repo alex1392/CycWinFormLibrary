@@ -19,6 +19,7 @@ namespace MyLibrary.Controls
 		{
 			InitializeComponent();
 		}
+
 		private Image OriginImage;
 
 		int changeTimes = 0;
@@ -51,11 +52,14 @@ namespace MyLibrary.Controls
 			}
 		}
 
-		//Paint
 		private int EffectivePictureBoxWidth => (int)(pictureBox.Width / ZoomFactor);
 		private int EffectivePictureBoxHeight => (int)(pictureBox.Height / ZoomFactor);
+		private int EffectiveImageWidth => (int)(OriginImage.Width * ZoomFactor);
+		private int EffectiveImageHeight => (int)(OriginImage.Height * ZoomFactor);
 		private bool IsImageWidthExceed => (OriginImage.Width > EffectivePictureBoxWidth) ? true : false;
 		private bool IsImageHeightExceed => (OriginImage.Height > EffectivePictureBoxHeight) ? true : false;
+
+		[Category("Metro Appearance")]
 		public Point ImageBoxPos
 		{
 			get => _ImageBoxPos;
@@ -63,13 +67,11 @@ namespace MyLibrary.Controls
 			{
 				if (OriginImage == null)
 					return;
-				_ImageBoxPos.X = MyMethods.Clamp(value.X, OriginImage.Width - EffectivePictureBoxWidth, 0);
-				_ImageBoxPos.Y = MyMethods.Clamp(value.Y, OriginImage.Height - EffectivePictureBoxHeight, 0);
+				_ImageBoxPos.X = (IsImageWidthExceed) ? MyMethods.Clamp(value.X, OriginImage.Width - EffectivePictureBoxWidth, 0) : 0;
+				_ImageBoxPos.Y = (IsImageHeightExceed) ? MyMethods.Clamp(value.Y, OriginImage.Height - EffectivePictureBoxHeight, 0) : 0;
 			}
 		}
 		private Point _ImageBoxPos = new Point(0, 0);
-
-		
 		
 		//background worker
 		private Image UpdateDisplayImage(Image OriginImage)
@@ -81,12 +83,23 @@ namespace MyLibrary.Controls
 				Width = EffectivePictureBoxWidth,
 				Height = EffectivePictureBoxHeight,
 			};
+			Rectangle BoundaryRectangle = new Rectangle
+			{
+				X = 0,
+				Y = 0,
+				Width = EffectiveImageWidth,
+				Height = EffectiveImageHeight,
+			};
 
 			Rectangle DestRect = pictureBox.ClientRectangle;
 			Image DisplayImage = new Bitmap(pictureBox.Width, pictureBox.Height); //使用new，因此已經不是原來的DisplayImage
-			using (var graphics = Graphics.FromImage(DisplayImage))
+			using (Graphics graphics = Graphics.FromImage(DisplayImage))
 			{
 				graphics.DrawImage(OriginImage, DestRect, CropRectangle, GraphicsUnit.Pixel);
+				using (Pen pen = new Pen(Color.Black, 1))
+				{
+					graphics.DrawRectangle(pen, BoundaryRectangle);
+				}
 			}
 			return DisplayImage;
 		}
