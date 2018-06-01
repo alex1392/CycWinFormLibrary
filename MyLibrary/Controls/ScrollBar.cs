@@ -367,12 +367,13 @@ namespace MyLibrary.Controls
 		#region Animation
 		private Timer HoverTimer;
 		private float HoverRatio; // 0~1
+		private bool IsIncreasing;
 		private void HoverTimer_Tick(object sender, EventArgs e)
 		{
-			HoverRatio += 0.05f;
+			HoverRatio = (IsIncreasing) ? HoverRatio + 0.05f : HoverRatio - 0.05f;
 			Refresh();
 
-			if (HoverRatio >= 1)
+			if (!IsIn(HoverRatio, 1, 0))
 			{
 				HoverTimer.Stop();
 			}
@@ -505,8 +506,11 @@ namespace MyLibrary.Controls
 		{
 			Focus();
 			IsHovered = true;
+
 			HoverRatio = 0;
+			IsIncreasing = true;
 			HoverTimer.Start();
+
 			Invalidate();
 
 			base.OnMouseEnter(e);
@@ -514,7 +518,14 @@ namespace MyLibrary.Controls
 		protected override void OnMouseLeave(EventArgs e)
 		{
 			IsHovered = false;
-			HoverTimer.Stop();
+
+			IsIncreasing = false;
+			if (!HoverTimer.Enabled)
+			{
+				HoverRatio = 1;
+				HoverTimer.Start();
+			}
+
 			Invalidate();
 
 			base.OnMouseLeave(e);

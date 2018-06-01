@@ -93,8 +93,8 @@ namespace MyLibrary.Controls
 		private int rangeWidth { get { return RangeMax - RangeMin; } }
 		private int rangeWidthX { get { return rangeMaxX - rangeMinX; } }
 
-		private bool isPressed = false;
-		private bool isHover = false;
+		private bool IsPressed = false;
+		private bool IsHover = false;
 
 		private string selectOn;
 		private int pressX;
@@ -195,13 +195,13 @@ namespace MyLibrary.Controls
 				barColor = MetroPaint.BackColor.RangeSlider.Bar.Disabled(Theme);
 				foreColor = MetroPaint.ForeColor.RangeSlider.Disabled(Theme);
 			}
-			else if (isPressed)
+			else if (IsPressed)
 			{
 				thumbColor = MetroPaint.BackColor.RangeSlider.Thumb.Pressed(Theme);
 				barColor = MetroPaint.BackColor.RangeSlider.Bar.Pressed(Theme);
 				foreColor = MetroPaint.ForeColor.RangeSlider.Pressed(Theme);
 			}
-			else if (isHover)
+			else if (IsHover)
 			{
 				thumbColor = MetroPaint.BackColor.RangeSlider.Thumb.Hover(Theme);
 				barColor = MetroPaint.BackColor.RangeSlider.Bar.Hover(Theme);
@@ -224,7 +224,7 @@ namespace MyLibrary.Controls
 			e.Graphics.Clear(backColor);
 			DrawRangeSlider(e.Graphics, barColor, thumbColor, foreColor);
 
-			if (false && isHover)
+			if (false && IsHover)
 				ControlPaint.DrawFocusRectangle(e.Graphics, ClientRectangle);
 		}
 
@@ -277,15 +277,15 @@ namespace MyLibrary.Controls
 		#region Animation
 		private Timer HoverTimer;
 		private float HoverRatio; // 0~1
+		private bool IsIncreasing;
 		private void HoverTimer_Tick(object sender, EventArgs e)
 		{
-			HoverRatio += 0.05f;
-			Refresh();
-
-			if (HoverRatio >= 1)
+			HoverRatio = (IsIncreasing) ? HoverRatio + 0.05f : HoverRatio - 0.05f;
+			if (!IsIn(HoverRatio, 1, 0))
 			{
 				HoverTimer.Stop();
 			}
+			Refresh();
 		}
 		#endregion
 
@@ -326,7 +326,7 @@ namespace MyLibrary.Controls
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
 			base.OnKeyDown(e);
-			if (!isHover || selectOn == null) return;
+			if (!IsHover || selectOn == null) return;
 
 			int delta = 0;
 			switch (e.KeyCode)
@@ -417,11 +417,12 @@ namespace MyLibrary.Controls
 					break;
 			}
 		}
-
+		
 		protected override void OnMouseEnter(EventArgs e)
 		{
 			Focus();
-			isHover = true;
+			IsHover = true;
+			IsIncreasing = true;
 			HoverRatio = 0;
 			HoverTimer.Start();
 			Invalidate();
@@ -430,8 +431,14 @@ namespace MyLibrary.Controls
 		}
 		protected override void OnMouseLeave(EventArgs e)
 		{
-			isHover = false;
-			HoverTimer.Stop();
+			IsHover = false;
+
+			IsIncreasing = false;
+			if (!HoverTimer.Enabled)
+			{
+				HoverRatio = 1;
+				HoverTimer.Start();
+			}
 			Invalidate();
 
 			base.OnMouseLeave(e);
@@ -442,7 +449,7 @@ namespace MyLibrary.Controls
 			base.OnMouseDown(e);
 			if (e.Button != MouseButtons.Left) return;
 
-			isPressed = true;
+			IsPressed = true;
 
 			pressX = (Orientation == SliderOrientation.Horizontal) ? e.Location.X : e.Location.Y;
 			disMinMin = rangeMinX - barMinX; 
@@ -454,7 +461,7 @@ namespace MyLibrary.Controls
 				selectOn = "Max";
 			else if (Math.Abs(disMinPress) < thumbRadius)
 				selectOn = "Min";
-			else if (IsIn<int>(pressX, rangeMaxX, rangeMinX)) 
+			else if (IsIn(pressX, rangeMaxX, rangeMinX)) 
 				selectOn = "range";
 			else
 				selectOn = null;
@@ -468,7 +475,7 @@ namespace MyLibrary.Controls
 		protected override void OnMouseUp(MouseEventArgs e)
 		{
 			base.OnMouseUp(e);
-			isPressed = false;
+			IsPressed = false;
 
 			OnValueChanged();
 			//OnScroll();
@@ -478,7 +485,7 @@ namespace MyLibrary.Controls
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
-			if (!(isPressed && e.Button == MouseButtons.Left))
+			if (!(IsPressed && e.Button == MouseButtons.Left))
 				return;
 
 			Mouse2Value(e);
@@ -489,7 +496,7 @@ namespace MyLibrary.Controls
 		protected override void OnMouseWheel(MouseEventArgs e)
 		{
 			base.OnMouseWheel(e);
-			if (!isHover || selectOn == null) return;
+			if (!IsHover || selectOn == null) return;
 
 			int delta = (int)(e.Delta / Math.Abs(e.Delta) * ScrollChange);
 			switch (selectOn)

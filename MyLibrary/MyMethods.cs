@@ -147,7 +147,14 @@ namespace MyLibrary
 			y = tmp;
 		}
 
-		public static bool IsIn<T>(int value, int Max, int Min)
+		public static bool IsIn(int value, int Max, int Min)
+		{
+			if (Min > Max)
+				Swap(ref Max, ref Min);
+			return (value <= Max && value >= Min) ? true : false;
+		}
+
+		public static bool IsIn(float value, int Max, int Min)
 		{
 			if (Min > Max)
 				Swap(ref Max, ref Min);
