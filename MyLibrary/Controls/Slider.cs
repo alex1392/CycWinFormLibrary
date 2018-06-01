@@ -148,7 +148,7 @@ namespace MyLibrary.Controls
 			}
 		}
 
-		private bool IsFocused = false;
+		private bool IsHover = false;
 		private bool IsPressed = false;
 		private int MouseX;
 
@@ -217,31 +217,42 @@ namespace MyLibrary.Controls
 							 ControlStyles.UserPaint, true);
 
 			BackColor = Color.Transparent;
+			SetProperties();
 		}
+
+		private void SetProperties()
+		{
+			HoverTimer = new Timer();
+			HoverTimer.Tick += HoverTimer_Tick;
+			HoverTimer.Interval = 10;
+		}
+
 		#endregion
 
 		#region Paint Methods
-
+		private Color backColor => (CustomBackground) ? BackColor : MetroPaint.BackColor.Form(Theme);
+		private Color thumbColor;
+		private Color barColor;
+		private Color foreColor;
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			Color backColor, thumbColor, barColor, foreColor;
-
-			if (CustomBackground)
-				backColor = BackColor;
-			else
-				backColor = MetroPaint.BackColor.Form(Theme);
-
 			if (!Enabled)
 			{
 				thumbColor = MetroPaint.BackColor.Slider.Thumb.Disabled(Theme);
 				barColor = MetroPaint.BackColor.Slider.Bar.Disabled(Theme);
 				foreColor = MetroPaint.ForeColor.Slider.Disabled(Theme);
 			}
-			else if (IsFocused)
+			else if (IsHover)
 			{
-				thumbColor = MetroPaint.BackColor.Slider.Thumb.Focused(Theme);
-				barColor = MetroPaint.BackColor.Slider.Bar.Focused(Theme);
-				foreColor = MetroPaint.ForeColor.Slider.Focused(Theme);
+				thumbColor = MetroPaint.BackColor.Slider.Thumb.Hover(Theme);
+				barColor = MetroPaint.BackColor.Slider.Bar.Hover(Theme);
+				foreColor = MetroPaint.ForeColor.Slider.Hover(Theme);
+			}
+			else if (IsPressed)
+			{
+				thumbColor = MetroPaint.BackColor.Slider.Thumb.Pressed(Theme);
+				barColor = MetroPaint.BackColor.Slider.Bar.Pressed(Theme);
+				foreColor = MetroPaint.ForeColor.Slider.Pressed(Theme);
 			}
 			else
 			{
@@ -250,10 +261,17 @@ namespace MyLibrary.Controls
 				foreColor = MetroPaint.ForeColor.Slider.Normal(Theme);
 			}
 
+			if (HoverTimer.Enabled)
+			{
+				barColor = Interpolate(MetroPaint.BackColor.Slider.Bar.Normal(Theme), MetroPaint.BackColor.Slider.Bar.Hover(Theme), HoverRatio);
+				thumbColor = Interpolate(MetroPaint.BackColor.Slider.Thumb.Normal(Theme), MetroPaint.BackColor.Slider.Thumb.Hover(Theme), HoverRatio);
+				foreColor = Interpolate(MetroPaint.ForeColor.Slider.Normal(Theme), MetroPaint.ForeColor.Slider.Hover(Theme), HoverRatio);
+			}
+
 			e.Graphics.Clear(backColor);
 			DrawSlider(e.Graphics, thumbColor, barColor, foreColor);
 
-			if (false && IsFocused)
+			if (false && IsHover)
 				ControlPaint.DrawFocusRectangle(e.Graphics, ClientRectangle);
 		}
 		
@@ -301,44 +319,46 @@ namespace MyLibrary.Controls
 
 		#endregion
 
-		#region Focus Methods
+		#region Animation
+		private Timer HoverTimer;
+		private float HoverRatio; // 0~1
+		private bool IsIncreasing;
+		private void HoverTimer_Tick(object sender, EventArgs e)
+		{
+			HoverRatio = (IsIncreasing) ? HoverRatio + 0.05f : HoverRatio - 0.05f;
+			if (!IsIn(HoverRatio, 1, 0))
+			{
+				HoverTimer.Stop();
+			}
+			Refresh();
+		}
+		#endregion
 
+		#region Focus Methods
 		protected override void OnGotFocus(EventArgs e)
 		{
-			IsFocused = true;
 			Invalidate();
 
 			base.OnGotFocus(e);
 		}
-
 		protected override void OnLostFocus(EventArgs e)
 		{
-			IsFocused = false;
-			IsFocused = false;
-			IsPressed = false;
 			Invalidate();
 
 			base.OnLostFocus(e);
 		}
-
 		protected override void OnEnter(EventArgs e)
 		{
-			IsFocused = true;
 			Invalidate();
 
 			base.OnEnter(e);
 		}
-
 		protected override void OnLeave(EventArgs e)
 		{
-			IsFocused = false;
-			IsFocused = false;
-			IsPressed = false;
 			Invalidate();
 
 			base.OnLeave(e);
 		}
-
 		#endregion
 
 		#region Keyboard Methods
@@ -346,7 +366,7 @@ namespace MyLibrary.Controls
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
 			base.OnKeyDown(e);
-			if (!IsFocused) return;
+			if (!IsHover) return;
 
 			int delta = 0;
 			switch (e.KeyCode)
@@ -412,11 +432,30 @@ namespace MyLibrary.Controls
 
 		protected override void OnMouseEnter(EventArgs e)
 		{
-			IsFocused = true;
+			Focus();
+			IsHover = true;
+			IsIncreasing = true;
+			HoverRatio = 0;
+			HoverTimer.Start();
 			Invalidate();
 
 			base.OnMouseEnter(e);
 		}
+		protected override void OnMouseLeave(EventArgs e)
+		{
+			IsHover = false;
+
+			IsIncreasing = false;
+			if (!HoverTimer.Enabled)
+			{
+				HoverRatio = 1;
+				HoverTimer.Start();
+			}
+			Invalidate();
+
+			base.OnMouseLeave(e);
+		}
+
 
 		protected override void OnMouseDown(MouseEventArgs e)
 		{
@@ -426,6 +465,14 @@ namespace MyLibrary.Controls
 			Mouse2Value(e);
 
 			OnScroll(Value);
+			HoverTimer.Stop();
+			Refresh();
+		}
+		protected override void OnMouseUp(MouseEventArgs e)
+		{
+			IsPressed = false;
+			base.OnMouseUp(e);
+			OnValueChanged();
 			Invalidate();
 		}
 
@@ -439,26 +486,11 @@ namespace MyLibrary.Controls
 			Invalidate();
 		}
 
-		protected override void OnMouseUp(MouseEventArgs e)
-		{
-			IsPressed = false;
-			base.OnMouseUp(e);
-			OnValueChanged();
-			Invalidate();
-		}
-
-		protected override void OnMouseLeave(EventArgs e)
-		{
-			IsFocused = false;
-			Invalidate();
-
-			base.OnMouseLeave(e);
-		}
 
 		protected override void OnMouseWheel(MouseEventArgs e)
 		{
 			base.OnMouseWheel(e);
-			if (!IsFocused) return;
+			if (!IsHover) return;
 
 			int delta = (int)(e.Delta / Math.Abs(e.Delta) * ScrollChange);
 			Value = Clamp(Value + delta, BarMax, BarMin);
