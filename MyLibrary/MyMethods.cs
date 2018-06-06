@@ -35,34 +35,46 @@ namespace MyLibrary
 			Console.WriteLine(result);
 		}
 
-		/*	RecursiveGetControls Exmaple:	
-		 *	List<Control> AllControls = RecursiveGetControls(Form); 
+    /*	GetAllControls Exmaple:	
+		 *	List<Control> AllControls = GetAllControls(Form); 
 		 */
-		public static List<Control> RecursiveGetControls(Form form)
-		{
-			return RecursiveGetControls(form.Controls);
-		}
-		public static List<Control> RecursiveGetControls(Control.ControlCollection controls)
-		{
-			List<Control> controlList = new List<Control>(); //初始化List
-			foreach (Control control in controls)
-				controlList.Add(control); // 將controls轉型成List				
-			List<Control> allControls = RecursiveGetControls(controlList); //真正開始getAllControls
-			return allControls;
-		}
-		public static List<Control> RecursiveGetControls(List<Control> controlList)
-		{
-			List<Control> opt = new List<Control>(); //不能opt = controlList!!! 會複製到參考型別!!!
-			opt.AddRange(controlList);
-			IEnumerable<Control> groupControls = from control in controlList
-																					 where control is GroupBox | control is TabControl | control is Panel 
-																					 select control; //選出controls中的groupControls
-			foreach (Control groupControl in groupControls)
-				opt.AddRange(RecursiveGetControls(groupControl.Controls)); //遞迴加入groupControls中的控制項
-			return opt;
-		}
+    public static List<Control> GetAllControls(Form form)
+    {
+      return GetAllControls(ToList(form.Controls));
+    }
+    public static List<Control> ToList(Control.ControlCollection controls)
+    {
+      List<Control> controlList = new List<Control>();
+      foreach (Control control in controls)
+        controlList.Add(control);
+      return controlList;
+    }
+    public static List<Control> GetAllControls(List<Control> inputList)
+    {
+      //複製inputList到outputList
+      List<Control> outputList = new List<Control>(inputList);
 
-		public static Bitmap ResizeImage(Image image, int width, int height)
+      //取出inputList中的容器
+      IEnumerable<Control> containers = from control in inputList
+                                        where
+              control is GroupBox |
+              control is TabControl |
+              control is Panel |
+              control is FlowLayoutPanel |
+              control is TableLayoutPanel |
+              control is ContainerControl
+                                        select control;
+
+
+      foreach (Control container in containers)
+      {
+        //遞迴加入容器內的容器與控制項
+        outputList.AddRange(GetAllControls(ToList(container.Controls)));
+      }
+      return outputList;
+    }
+
+    public static Bitmap ResizeImage(Image image, int width, int height)
 		{
 			var destRect = new Rectangle(0, 0, width, height);
 			var destImage = new Bitmap(width, height);

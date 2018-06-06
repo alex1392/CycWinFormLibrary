@@ -27,7 +27,7 @@ namespace MyLibrary
 			
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new AutoResizeControlsForm());
+			Application.Run(new MyLibrary.Forms.AutoResizeControlsForm());
 		}
 	}
 }

@@ -44,14 +44,14 @@ namespace MyLibrary.Controls
 			}
 		}
 		//設計工具中設定影像給Image，及時更新畫面
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public Image Image
 		{
 			get => OriginImage;
 			set
 			{
 				OriginImage = value;
-				//Console.WriteLine("Set Image");
+				Console.WriteLine("Set Image");
 				DisplayImage = UpdateDisplayImage(OriginImage);
 				UpdatePictureBox();
 				UpdateScrollBar();
@@ -65,7 +65,7 @@ namespace MyLibrary.Controls
 		private bool IsImageWidthExceed => (OriginImage.Width > EffectivePictureBoxWidth) ? true : false;
 		private bool IsImageHeightExceed => (OriginImage.Height > EffectivePictureBoxHeight) ? true : false;
 
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public Point ImageBoxPos
 		{
 			get => _ImageBoxPos;
@@ -134,7 +134,7 @@ namespace MyLibrary.Controls
 					dX = (int)((e.X - AnchorPoint.X) / ZoomFactor);
 					dY = (int)((e.Y - AnchorPoint.Y) / ZoomFactor);
 					ImageBoxPos = new Point(OldBoxPos.X - dX, OldBoxPos.Y - dY);
-					//Console.WriteLine("drag");
+					Console.WriteLine("drag");
 					DisplayImage = UpdateDisplayImage(OriginImage);
 				}//drag
 				else if (args.sender == this && e.Delta != 0 && pictureBox.ClientRectangle.Contains(e.Location))

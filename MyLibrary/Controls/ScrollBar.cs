@@ -21,7 +21,7 @@ namespace MyLibrary.Controls
 		#region Interface
 
 		private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public MetroColorStyle Style
 		{
 			get
@@ -35,7 +35,7 @@ namespace MyLibrary.Controls
 		}
 
 		private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public MetroThemeStyle Theme
 		{
 			get
@@ -100,7 +100,7 @@ namespace MyLibrary.Controls
 
 		private ScrollOrientation scrollOrientation = ScrollOrientation.HorizontalScroll;
 		private ScrollBarOrientation orientation = ScrollBarOrientation.Horizontal;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public ScrollBarOrientation Orientation
 		{
 			get { return orientation; }
@@ -123,7 +123,7 @@ namespace MyLibrary.Controls
 		}
 
 		private bool _UseBarColor = true;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public bool UseBarColor
 		{
 			get { return _UseBarColor; }
@@ -131,7 +131,7 @@ namespace MyLibrary.Controls
 		}
 
 		private int _Minimum = 0;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public int Minimum
 		{
 			get { return _Minimum; }
@@ -149,7 +149,7 @@ namespace MyLibrary.Controls
 			}
 		}
 		private int _Maximum = 100;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public int Maximum
 		{
 			get { return _Maximum; }
@@ -168,7 +168,7 @@ namespace MyLibrary.Controls
 		}
 
 		private int _ThumbLength;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public int ThumbLength
 		{
 			get => _ThumbLength;
@@ -181,14 +181,14 @@ namespace MyLibrary.Controls
 			}
 		}
 
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		private int CapRadius => Thickness / 2;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public int Thickness => Orientation == ScrollBarOrientation.Vertical ? Width : Height;
 
 		private int ValueLength => _Maximum - _Minimum;
 		private int _Value = 0;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public int Value
 		{
 			get => _Value;
@@ -220,7 +220,7 @@ namespace MyLibrary.Controls
 		private Rectangle ThumbRectangle => orientation == ScrollBarOrientation.Vertical ?
 				new Rectangle(0, ThumbFrontPosition, Thickness, ThumbLength) :
 				new Rectangle(ThumbFrontPosition, 0, ThumbLength, Thickness);
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		public int BarLength
 		{
 			get => orientation == ScrollBarOrientation.Vertical ? Height : Width;
