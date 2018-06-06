@@ -177,5 +177,43 @@ namespace MyLibrary
 		{
 			return Log(num) / Log(Base);
 		}
-	}
+
+    public static TextFormatFlags GetTextFormatFlags(ContentAlignment textAlign)
+    {
+      TextFormatFlags controlFlags = TextFormatFlags.EndEllipsis;
+
+      switch (textAlign)
+      {
+        case ContentAlignment.TopLeft:
+          controlFlags |= TextFormatFlags.Top | TextFormatFlags.Left;
+          break;
+        case ContentAlignment.TopCenter:
+          controlFlags |= TextFormatFlags.Top | TextFormatFlags.HorizontalCenter;
+          break;
+        case ContentAlignment.TopRight:
+          controlFlags |= TextFormatFlags.Top | TextFormatFlags.Right;
+          break;
+        case ContentAlignment.MiddleLeft:
+          controlFlags |= TextFormatFlags.VerticalCenter | TextFormatFlags.Left;
+          break;
+        case ContentAlignment.MiddleCenter:
+          controlFlags |= TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter;
+          break;
+        case ContentAlignment.MiddleRight:
+          controlFlags |= TextFormatFlags.VerticalCenter | TextFormatFlags.Right;
+          break;
+        case ContentAlignment.BottomLeft:
+          controlFlags |= TextFormatFlags.Bottom | TextFormatFlags.Left;
+          break;
+        case ContentAlignment.BottomCenter:
+          controlFlags |= TextFormatFlags.Bottom | TextFormatFlags.HorizontalCenter;
+          break;
+        case ContentAlignment.BottomRight:
+          controlFlags |= TextFormatFlags.Bottom | TextFormatFlags.Right;
+          break;
+      }
+
+      return controlFlags;
+    }
+  }
 }

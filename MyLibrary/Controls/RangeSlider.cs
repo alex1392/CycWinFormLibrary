@@ -3,10 +3,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.ComponentModel;
 using System.Windows.Forms;
-using MetroFramework.Drawing;
-using MetroFramework.Components;
-using MetroFramework.Interfaces;
-using MetroFramework;
 using static MyLibrary.MyMethods;
 
 namespace MyLibrary.Controls
@@ -123,7 +119,7 @@ namespace MyLibrary.Controls
 
     #region Constructor
 
-    public RangeSlider2()
+    public RangeSlider()
     {
       SetStyle(ControlStyles.AllPaintingInWmPaint |
                ControlStyles.OptimizedDoubleBuffer |
@@ -265,8 +261,8 @@ namespace MyLibrary.Controls
       g.FillEllipse(thumbBrushInner, rangeMinRect);
       g.DrawEllipse(thumbPen, rangeMaxRect);
       g.FillEllipse(thumbBrushInner, rangeMaxRect);
-      TextRenderer.DrawText(g, " " + RangeMin.ToString(), font, rangeMinRect, textColor, Color.Transparent, MetroPaint.GetTextFormatFlags(ContentAlignment.MiddleCenter));
-      TextRenderer.DrawText(g, " " + RangeMax.ToString(), font, rangeMaxRect, textColor, Color.Transparent, MetroPaint.GetTextFormatFlags(ContentAlignment.MiddleCenter));
+      TextRenderer.DrawText(g, " " + RangeMin.ToString(), font, rangeMinRect, textColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
+      TextRenderer.DrawText(g, " " + RangeMax.ToString(), font, rangeMaxRect, textColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
     }
 
     #endregion

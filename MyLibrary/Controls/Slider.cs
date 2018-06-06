@@ -2,68 +2,23 @@
 using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
-using MetroFramework;
-using MetroFramework.Drawing;
-using MetroFramework.Components;
-using MetroFramework.Interfaces;
 using System.Drawing.Drawing2D;
 using static MyLibrary.MyMethods;
 
 namespace MyLibrary.Controls
 {
 	[DefaultEvent("Scroll")]
-	public class Slider : Control, IMetroControl //繼承自Control，自己打造Slider
+	public class Slider : Control
 	{
-
-		#region Interface
-
-		private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-		[Category("Metro Appearance")]
-		public MetroColorStyle Style
-		{
-			get
-			{
-				if (StyleManager != null)
-					return StyleManager.Style;
-
-				return metroStyle;
-			}
-			set { metroStyle = value; }
-		}
-
-		private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-		[Category("Metro Appearance")]
-		public MetroThemeStyle Theme
-		{
-			get
-			{
-				if (StyleManager != null)
-					return StyleManager.Theme;
-
-				return metroTheme;
-			}
-			set { metroTheme = value; }
-		}
-
-		private MetroStyleManager metroStyleManager = null;
-		[Browsable(false)]
-		public MetroStyleManager StyleManager
-		{
-			get { return metroStyleManager; }
-			set { metroStyleManager = value; }
-		}
-
-		#endregion
-
 		#region Events
-		[Category("Metro Events")]
+		[Category("Events")]
 		[Description("滑桿數值變更時觸發")]
 		public event EventHandler ValueChanged; 
 		private void OnValueChanged()
 		{
 			ValueChanged?.Invoke(this, EventArgs.Empty);
 		}
-		[Category("Metro Events")]
+		[Category("Events")]
 		[Description("滑桿移動時觸發")]	
 		public event ScrollEventHandler Scroll; 
 		private void OnScroll(int newValue)
@@ -157,7 +112,7 @@ namespace MyLibrary.Controls
 		#region Fields
 
 		private SliderOrientation orientation = SliderOrientation.Down;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		[Description("滑桿軸的方向")]
 		public SliderOrientation Orientation
 		{
@@ -176,29 +131,29 @@ namespace MyLibrary.Controls
 				orientation = value;
 			}
 		}
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		[Description("是否使用自訂背景")]
 		public bool CustomBackground { get; set; } = false;
-		[Category("Metro Appearance")]
+		[Category("Appearance")]
 		[Description("是否使滑桿數線方向相反(預設是由上至下或由左至右)")]
 		public bool Reverse { get; set; } = false;
 
-		[Category("Metro Data")]
+		[Category("Data")]
 		[Description("滑桿之數值")]
 		public int Value { get; set; } = 25;
-		[Category("Metro Data")]
+		[Category("Data")]
 		[Description("滑桿軸之最小值")]
 		public int BarMin { get; set; } = 0;
-		[Category("Metro Data")]
+		[Category("Data")]
 		[Description("滑桿軸之最大值")]
 		public int BarMax { get; set; } = 100;
-		[Category("Metro Data")]
+		[Category("Data")]
 		[Description("按一下方向鍵使滑桿移動之數值")]
 		public uint ArrowChange { get; set; } = 1;
-		[Category("Metro Data")]
+		[Category("Data")]
 		[Description("按一下PageUp/PageDown使滑桿移動之數值")]
 		public uint PageChange { get; set; } = 5;
-		[Category("Metro Data")]
+		[Category("Data")]
 		[Description("操作滑鼠滾輪使滑桿移動之數值")]
 		public uint ScrollChange { get; set; } = 10;
 
@@ -227,45 +182,79 @@ namespace MyLibrary.Controls
 			HoverTimer.Interval = 10;
 		}
 
-		#endregion
+    #endregion
 
-		#region Paint Methods
-		private Color backColor => (CustomBackground) ? BackColor : MetroPaint.BackColor.Form(Theme);
+    #region Paint Methods
+    [Category("Appearance")]
+    public Color Color { get; set; } = Color.FromKnownColor(KnownColor.MenuHighlight);
+
+
+    private Color backColor => (CustomBackground) ? BackColor : Parent.BackColor;
 		private Color thumbColor;
 		private Color barColor;
 		private Color foreColor;
-		protected override void OnPaint(PaintEventArgs e)
+    public sealed class Colors
+    {
+      private static int ThumbGrayNormal = 120;
+      private static int ThumbGrayHover = ThumbGrayNormal - 40;
+      private static int ThumbGrayPressed = ThumbGrayHover - 60;
+      private static int BarGrayNormal = ThumbGrayNormal + 50;
+      private static int BarGrayHover = ThumbGrayHover + 50;
+      private static int BarGrayPressed = BarGrayHover;
+      public sealed class Thumb
+      {
+        public static Color Normal = Color.FromArgb(ThumbGrayNormal, ThumbGrayNormal, ThumbGrayNormal);
+        public static Color Hover = Color.FromArgb(ThumbGrayHover, ThumbGrayHover, ThumbGrayHover);
+        public static Color Pressed = Color.FromArgb(ThumbGrayPressed, ThumbGrayPressed, ThumbGrayPressed);
+        public static Color Disabled = Color.FromArgb(221, 221, 221);
+      }
+      public sealed class Bar
+      {
+        public static Color Normal = Color.FromArgb(BarGrayNormal, BarGrayNormal, BarGrayNormal);
+        public static Color Hover = Color.FromArgb(BarGrayHover, BarGrayHover, BarGrayHover);
+        public static Color Pressed = Color.FromArgb(BarGrayPressed, BarGrayPressed, BarGrayPressed);
+        public static Color Disabled = Color.FromArgb(BarGrayNormal, BarGrayNormal, BarGrayNormal);
+      }
+      public sealed class Text
+      {
+        public static Color Normal = Color.FromArgb(0, 0, 0);
+        public static Color Hover = Color.FromArgb(255, 255, 255);
+        public static Color Pressed = Color.FromArgb(255, 255, 255);
+        public static Color Disabled = Color.FromArgb(136, 136, 136);
+      }
+    }
+    protected override void OnPaint(PaintEventArgs e)
 		{
 			if (!Enabled)
 			{
-				thumbColor = MetroPaint.BackColor.Slider.Thumb.Disabled(Theme);
-				barColor = MetroPaint.BackColor.Slider.Bar.Disabled(Theme);
-				foreColor = MetroPaint.ForeColor.Slider.Disabled(Theme);
+				thumbColor = Colors.Thumb.Disabled;
+				barColor = Colors.Bar.Disabled;
+				foreColor = Colors.Text.Disabled;
 			}
 			else if (IsHover)
 			{
-				thumbColor = MetroPaint.BackColor.Slider.Thumb.Hover(Theme);
-				barColor = MetroPaint.BackColor.Slider.Bar.Hover(Theme);
-				foreColor = MetroPaint.ForeColor.Slider.Hover(Theme);
+				thumbColor = Colors.Thumb.Hover;
+				barColor = Colors.Bar.Hover;
+				foreColor = Colors.Text.Hover;
 			}
 			else if (IsPressed)
 			{
-				thumbColor = MetroPaint.BackColor.Slider.Thumb.Pressed(Theme);
-				barColor = MetroPaint.BackColor.Slider.Bar.Pressed(Theme);
-				foreColor = MetroPaint.ForeColor.Slider.Pressed(Theme);
+				thumbColor = Colors.Thumb.Pressed;
+				barColor = Colors.Bar.Pressed;
+				foreColor = Colors.Text.Pressed;
 			}
 			else
 			{
-				thumbColor = MetroPaint.BackColor.Slider.Thumb.Normal(Theme);
-				barColor = MetroPaint.BackColor.Slider.Bar.Normal(Theme);
-				foreColor = MetroPaint.ForeColor.Slider.Normal(Theme);
+				thumbColor = Colors.Thumb.Normal;
+				barColor = Colors.Bar.Normal;
+				foreColor = Colors.Text.Normal;
 			}
 
 			if (HoverTimer.Enabled)
 			{
-				barColor = Interpolate(MetroPaint.BackColor.Slider.Bar.Normal(Theme), MetroPaint.BackColor.Slider.Bar.Hover(Theme), HoverRatio);
-				thumbColor = Interpolate(MetroPaint.BackColor.Slider.Thumb.Normal(Theme), MetroPaint.BackColor.Slider.Thumb.Hover(Theme), HoverRatio);
-				foreColor = Interpolate(MetroPaint.ForeColor.Slider.Normal(Theme), MetroPaint.ForeColor.Slider.Hover(Theme), HoverRatio);
+				barColor = Interpolate(Colors.Bar.Normal, Colors.Bar.Hover, HoverRatio);
+				thumbColor = Interpolate(Colors.Thumb.Normal, Colors.Thumb.Hover, HoverRatio);
+				foreColor = Interpolate(Colors.Text.Normal, Colors.Text.Hover, HoverRatio);
 			}
 
 			e.Graphics.Clear(backColor);
@@ -277,9 +266,9 @@ namespace MyLibrary.Controls
 		
 		private void DrawSlider(Graphics g, Color thumbColor, Color barColor, Color foreColor)
 		{
-			SolidBrush thumbBrush = MetroPaint.GetStyleBrush(Style);
+      SolidBrush thumbBrush = new SolidBrush(Color);
 			Pen thumbPen = new Pen(thumbColor) { Width = ThumbEdgeWidth };
-			Pen barLPen = new Pen(MetroPaint.GetStyleColor(Style)) { StartCap = LineCap.Round, EndCap = LineCap.Round, Width = BarHeightY };
+			Pen barLPen = new Pen(Color) { StartCap = LineCap.Round, EndCap = LineCap.Round, Width = BarHeightY };
 			Pen barRPen = new Pen(barColor) { StartCap = LineCap.Round, EndCap = LineCap.Round, Width = BarHeightY };
 			Font font = new Font("Segoe UI", FontSize, FontStyle.Bold, GraphicsUnit.Pixel);
 
@@ -314,7 +303,7 @@ namespace MyLibrary.Controls
 			g.DrawPolygon(thumbPen, thumbPts);
 			g.FillPolygon(thumbBrush, thumbPts);
 			txtRect = new Rectangle(thumbPts[0].X, thumbPts[0].Y, ThumbWidth, ThumbHeight);
-			TextRenderer.DrawText(g, Value.ToString(), font, txtRect, foreColor, Color.Transparent, MetroPaint.GetTextFormatFlags(ContentAlignment.MiddleCenter));
+			TextRenderer.DrawText(g, Value.ToString(), font, txtRect, foreColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
 		}
 
 		#endregion

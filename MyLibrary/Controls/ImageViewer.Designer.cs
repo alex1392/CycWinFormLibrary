@@ -60,11 +60,8 @@
 			this.ScrollBarHorizontal.Orientation = MyLibrary.ScrollBarOrientation.Horizontal;
 			this.ScrollBarHorizontal.Size = new System.Drawing.Size(306, 18);
 			this.ScrollBarHorizontal.SmallChange = 10;
-			this.ScrollBarHorizontal.Style = MetroFramework.MetroColorStyle.Blue;
-			this.ScrollBarHorizontal.StyleManager = null;
 			this.ScrollBarHorizontal.TabIndex = 4;
 			this.ScrollBarHorizontal.Text = "scrollBar1";
-			this.ScrollBarHorizontal.Theme = MetroFramework.MetroThemeStyle.Light;
 			this.ScrollBarHorizontal.ThumbLength = 28;
 			this.ScrollBarHorizontal.UseBarColor = true;
 			this.ScrollBarHorizontal.Value = 0;
@@ -82,11 +79,8 @@
 			this.ScrollBarVertical.Orientation = MyLibrary.ScrollBarOrientation.Vertical;
 			this.ScrollBarVertical.Size = new System.Drawing.Size(16, 260);
 			this.ScrollBarVertical.SmallChange = 10;
-			this.ScrollBarVertical.Style = MetroFramework.MetroColorStyle.Blue;
-			this.ScrollBarVertical.StyleManager = null;
 			this.ScrollBarVertical.TabIndex = 3;
 			this.ScrollBarVertical.Text = "scrollBar1";
-			this.ScrollBarVertical.Theme = MetroFramework.MetroThemeStyle.Light;
 			this.ScrollBarVertical.ThumbLength = 60;
 			this.ScrollBarVertical.UseBarColor = true;
 			this.ScrollBarVertical.Value = 0;

@@ -1,10 +1,4 @@
-﻿using MetroFramework;
-using MetroFramework.Components;
-using MetroFramework.Design;
-using MetroFramework.Drawing;
-using MetroFramework.Interfaces;
-using MetroFramework.Native;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -18,46 +12,6 @@ namespace MyLibrary.Controls
 	[DefaultProperty("Value")]
 	public class ScrollBar : Control
 	{
-		#region Interface
-
-		private MetroColorStyle metroStyle = MetroColorStyle.Blue;
-		[Category("Appearance")]
-		public MetroColorStyle Style
-		{
-			get
-			{
-				if (StyleManager != null)
-					return StyleManager.Style;
-
-				return metroStyle;
-			}
-			set { metroStyle = value; }
-		}
-
-		private MetroThemeStyle metroTheme = MetroThemeStyle.Light;
-		[Category("Appearance")]
-		public MetroThemeStyle Theme
-		{
-			get
-			{
-				if (StyleManager != null)
-					return StyleManager.Theme;
-
-				return metroTheme;
-			}
-			set { metroTheme = value; }
-		}
-
-		private MetroStyleManager metroStyleManager = null;
-		[Browsable(false)]
-		public MetroStyleManager StyleManager
-		{
-			get { return metroStyleManager; }
-			set { metroStyleManager = value; }
-		}
-
-		#endregion
-
 		#region Events
 
 		public event ScrollEventHandler Scroll;
@@ -287,37 +241,59 @@ namespace MyLibrary.Controls
 		#endregion
 
 		#region Paint Methods
-		
-		private Color backColor => (Parent is IMetroControl || Parent == null) ? MetroPaint.BackColor.Form(Theme) : Parent.BackColor;
+		private Color backColor => Parent.BackColor;
 		private Color thumbColor;
 		private Color barColor;
-		protected override void OnPaint(PaintEventArgs e)
+    public sealed class Colors
+    {
+      private static int ThumbGrayNormal = 160;
+      private static int ThumbGrayHover = ThumbGrayNormal - 40;
+      private static int ThumbGrayPressed = ThumbGrayHover - 50;
+      private static int BarGrayNormal = ThumbGrayNormal + 50;
+      private static int BarGrayHover = ThumbGrayHover + 50;
+      private static int BarGrayPressed = BarGrayHover;
+      public sealed class Thumb
+      {
+        public static Color Normal = Color.FromArgb(ThumbGrayNormal, ThumbGrayNormal, ThumbGrayNormal);
+        public static Color Hover = Color.FromArgb(ThumbGrayHover, ThumbGrayHover, ThumbGrayHover);
+        public static Color Pressed = Color.FromArgb(ThumbGrayPressed, ThumbGrayPressed, ThumbGrayPressed);
+        public static Color Disabled = Color.FromArgb(221, 221, 221);
+      }
+      public sealed class Bar
+      {
+        public static Color Normal = Color.FromArgb(BarGrayNormal, BarGrayNormal, BarGrayNormal);
+        public static Color Hover = Color.FromArgb(BarGrayHover, BarGrayHover, BarGrayHover);
+        public static Color Pressed = Color.FromArgb(BarGrayPressed, BarGrayPressed, BarGrayPressed);
+        public static Color Disabled = Color.FromArgb(BarGrayNormal, BarGrayNormal, BarGrayNormal);
+      }
+    }
+    protected override void OnPaint(PaintEventArgs e)
 		{
 			if (IsHovered && !IsPressed && Enabled)
 			{
-				thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Hover(Theme);
-				barColor = MetroPaint.BackColor.ScrollBar.Bar.Hover(Theme);
+				thumbColor = Colors.Thumb.Hover;
+				barColor = Colors.Bar.Hover;
 			}
 			else if (IsHovered && IsPressed && Enabled)
 			{
-				thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Pressed(Theme);
-				barColor = MetroPaint.BackColor.ScrollBar.Bar.Pressed(Theme);
+				thumbColor = Colors.Thumb.Pressed;
+				barColor = Colors.Bar.Pressed;
 			}
 			else if (!Enabled)
 			{
-				thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Disabled(Theme);
-				barColor = MetroPaint.BackColor.ScrollBar.Bar.Disabled(Theme);
+				thumbColor = Colors.Thumb.Disabled;
+				barColor = Colors.Bar.Disabled;
 			}
 			else
 			{
-				thumbColor = MetroPaint.BackColor.ScrollBar.Thumb.Normal(Theme);
-				barColor = MetroPaint.BackColor.ScrollBar.Bar.Normal(Theme);
+				thumbColor = Colors.Thumb.Normal;
+				barColor = Colors.Bar.Normal;
 			}
 
 			if (HoverTimer.Enabled)
 			{
-				barColor = Interpolate(MetroPaint.BackColor.ScrollBar.Bar.Normal(Theme), MetroPaint.BackColor.ScrollBar.Bar.Hover(Theme), HoverRatio);
-				thumbColor = Interpolate(MetroPaint.BackColor.ScrollBar.Thumb.Normal(Theme), MetroPaint.BackColor.ScrollBar.Thumb.Hover(Theme), HoverRatio);
+				barColor = Interpolate(Colors.Bar.Normal, Colors.Bar.Hover, HoverRatio);
+				thumbColor = Interpolate(Colors.Thumb.Normal, Colors.Thumb.Hover, HoverRatio);
 			}
 
 			e.Graphics.Clear(backColor);

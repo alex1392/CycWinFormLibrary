@@ -10,6 +10,8 @@ using System.Windows.Forms;
 
 namespace MyLibrary
 {
+
+
   public sealed class Colors
   {
     public static Color Blue = Color.FromArgb(67, 133, 246);
@@ -81,7 +83,7 @@ namespace MyLibrary
     public int Height;
   }
 
-  public class PixelImage: ICloneable
+  public class PixelImage : ICloneable
   {
     private Bitmap _Bitmap;
     public Bitmap Bitmap
@@ -158,7 +160,6 @@ namespace MyLibrary
 
       //解鎖
       _Bitmap.UnlockBits(bitmapData);
-
     }
 
     private void Bitmap2Pixel()
