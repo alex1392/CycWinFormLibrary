@@ -110,7 +110,7 @@ namespace MyLibrary
 		public static int LinConvert(int value1, int max1, int min1, int max2, int min2)
 		{
 			float r = (float)(max2 - min2) / (max1 - min1);
-			return (int)(min2 + (value1 - min1) * r);
+			return (int)Round(min2 + (value1 - min1) * r);
 		}
 
 		public static float LinConvert(float value1, float max1, float min1, float max2, float min2)

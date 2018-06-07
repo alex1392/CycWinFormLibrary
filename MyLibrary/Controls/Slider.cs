@@ -269,11 +269,13 @@ namespace MyLibrary.Controls
 			Point[] thumbPts;
 			Rectangle txtRect;
 			int thumbY;
-			if (orientation == UDLROrientation.Down || orientation == UDLROrientation.Right)
+			if (orientation == UDLROrientation.Down || 
+        orientation == UDLROrientation.Right)
 				thumbY = (int)(BarY * 0.7);
 			else
 				thumbY = (int)(BarY * 1.3);
-			if (orientation == UDLROrientation.Down || orientation == UDLROrientation.Up)
+			if (orientation == UDLROrientation.Down || 
+        orientation == UDLROrientation.Up)
 			{
 				barLPtL = new Point(BarMinPos, BarY);
 				barLPtR = new Point(ThumbPos, BarY);
@@ -291,6 +293,7 @@ namespace MyLibrary.Controls
 				
 				thumbPts = getThumbPts(thumbY, ThumbPos, ThumbWidth / 2, ThumbHeight / 2);
 			}
+
 			g.DrawLine(barLPen, barLPtL, barLPtR);
 			g.DrawLine(barRPen, barRPtL, barRPtR);
 			g.DrawPolygon(thumbPen, thumbPts);

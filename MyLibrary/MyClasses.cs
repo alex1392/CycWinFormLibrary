@@ -43,7 +43,25 @@ namespace MyLibrary
     }
   }
 
-  public sealed class Colors
+  public enum EMyColors
+  {
+    Blue,   
+    Green,
+    Red,
+    Black,
+    White,
+    Silver, 
+    Lime,
+    Teal, 
+    Orange, 
+    Brown,
+    Pink, 
+    Magenta,
+    Purple,
+    Yellow
+  }
+
+  public sealed class MyColors
   {
     public static Color Blue = Color.FromArgb(67, 133, 246);
     public static Color Green = Color.FromArgb(52, 168, 85);
@@ -206,7 +224,7 @@ namespace MyLibrary
       Marshal.Copy(bitmapData.Scan0, _Pixel, 0, _Pixel.Length);
 
       //解鎖
-      _Bitmap.UnlockBits(bitmapData);
+      _Bitmap.UnlockBits(bitmapData); //其他地方正在使用物件.....
 
     }
     #endregion

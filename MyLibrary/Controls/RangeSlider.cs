@@ -85,10 +85,48 @@ namespace MyLibrary.Controls
     [Description("滑桿軸之最大值")]
     public int BarMax { get; set; } = 255;
 
+    private Color ThumbColor
+    {
+      get
+      {
+        switch (Color)
+        {
+          case EMyColors.Blue:
+            return MyColors.Blue;
+          case EMyColors.Green:
+            return MyColors.Green;
+          case EMyColors.Red:
+            return MyColors.Red;
+          case EMyColors.Black:
+            return MyColors.Black;
+          case EMyColors.White:
+            return MyColors.White;
+          case EMyColors.Silver:
+            return MyColors.Silver;
+          case EMyColors.Lime:
+            return MyColors.Lime;
+          case EMyColors.Teal:
+            return MyColors.Teal;
+          case EMyColors.Orange:
+            return MyColors.Orange;
+          case EMyColors.Brown:
+            return MyColors.Brown;
+          case EMyColors.Pink:
+            return MyColors.Pink;
+          case EMyColors.Magenta:
+            return MyColors.Magenta;
+          case EMyColors.Purple:
+            return MyColors.Purple;
+          case EMyColors.Yellow:
+            return MyColors.Yellow;
+          default:
+            return MyColors.Blue;
+        }
+      }
+    }
     [Category("Appearance")]
     [Description("控制項顏色")]
-    public Color Color { get; set; } = Color.FromKnownColor(KnownColor.MenuHighlight);
-
+    public EMyColors Color { get; set; } = EMyColors.Blue;
     #endregion
 
     #region Constructor
@@ -118,7 +156,7 @@ namespace MyLibrary.Controls
 
       this.Width = 200;
       this.Height = 10;
-      BackColor = Color.Transparent;
+      base.BackColor = System.Drawing.Color.Transparent;
     }
 
     #endregion
@@ -130,33 +168,32 @@ namespace MyLibrary.Controls
     private Color barColor;
     private Color textColor;
     private Color thumbColor;
-    
     protected override void OnPaint(PaintEventArgs e)
     {
       if (!Enabled)
       {
-        thumbColor = WriteOut(Color,50);
+        thumbColor = WriteOut(ThumbColor,50);
         thumbEdgeColor = ShadeColors.Thumb.Normal;
         barColor = ShadeColors.Bar.Disabled;
         textColor = ShadeColors.Text.Disabled;
       }
       else if (IsPressed)
       {
-        thumbColor = Color;
+        thumbColor = ThumbColor;
         thumbEdgeColor = ShadeColors.Thumb.Pressed;
         barColor = ShadeColors.Bar.Pressed;
         textColor = ShadeColors.Text.Pressed;
       }
       else if (IsFocus)
       {
-        thumbColor = Color;
+        thumbColor = ThumbColor;
         thumbEdgeColor = ShadeColors.Thumb.Focus;
         barColor = ShadeColors.Bar.Focus;
         textColor = ShadeColors.Text.Focus;
       }
       else
       {
-        thumbColor = Color;
+        thumbColor = ThumbColor;
         thumbEdgeColor = ShadeColors.Thumb.Normal;
         barColor = ShadeColors.Bar.Normal;
         textColor = ShadeColors.Text.Normal;
@@ -236,7 +273,7 @@ namespace MyLibrary.Controls
       }
       using (Pen thumbPen = new Pen(thumbEdgeColor) { Width = ThumbEdgeWidth })
       {
-        using (SolidBrush thumbBrushInner = new SolidBrush(Color))
+        using (SolidBrush thumbBrushInner = new SolidBrush(thumbColor))
         {
           DrawRoundShadow(g, ThumbMinShadowRect, ThumbEdgeWidth);
           g.FillEllipse(thumbBrushInner, ThumbMinRect);
@@ -246,8 +283,8 @@ namespace MyLibrary.Controls
       }
 
       Font font = new Font("Segoe UI", FontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-      TextRenderer.DrawText(g, " " + RangeMin.ToString(), font, ThumbMinRect, textColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
-      TextRenderer.DrawText(g, " " + RangeMax.ToString(), font, ThumbMaxRect, textColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
+      TextRenderer.DrawText(g, " " + RangeMin.ToString(), font, ThumbMinRect, textColor, System.Drawing.Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
+      TextRenderer.DrawText(g, " " + RangeMax.ToString(), font, ThumbMaxRect, textColor, System.Drawing.Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
     }
 
     #endregion

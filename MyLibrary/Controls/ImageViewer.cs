@@ -187,7 +187,7 @@ namespace MyLibrary.Controls
 		}
 		private void UpdatePictureBox()
 		{
-			pictureBox.Image = DisplayImage;
+			pictureBox.Image = (Image)DisplayImage.Clone();
 		}
 		private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
