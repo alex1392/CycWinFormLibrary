@@ -28,31 +28,31 @@ namespace MyLibrary.Controls
     #endregion
 
     #region Private Properties
-    private int orientWidth { get { return (Orientation == SliderOrientation.Horizontal) ? Width : Height; } }
-    private int orientHeight { get { return (Orientation == SliderOrientation.Horizontal) ? Height : Width; } }
+    private int orientWidth => (Orientation == RangeSliderOrientation.Horizontal) ? Width : Height;
+    private int orientHeight => (Orientation == RangeSliderOrientation.Horizontal) ? Height : Width;
 
-    private int thumbRadius { get { return Clamp(orientHeight * (6.5f / 20f), int.MaxValue, 3); } }
-    private int thumbEdgeWidth { get { return Clamp(orientHeight * (2.5f / 20f), int.MaxValue, 1); } }
-    private int barY { get { return orientHeight / 2; } }
-    private int barHeightY { get { return Clamp(orientHeight * (8f / 20f), int.MaxValue, 4); } }
-    private float fontSize { get { return thumbRadius * 0.7f; } }
+    private int thumbRadius => Clamp(orientHeight * (6.5f / 20f), int.MaxValue, 3);
+    private int thumbEdgeWidth => Clamp(orientHeight * (2.5f / 20f), int.MaxValue, 1);
+    private int barY => orientHeight / 2;
+    private int barHeightY => Clamp(orientHeight * (8f / 20f), int.MaxValue, 4);
+    private float fontSize => thumbRadius * 0.7f;
 
-    private int offsetMaxMinX { get { return (!Reverse) ? thumbRadius * 2 : -thumbRadius * 2; } }
-    private int offsetMaxMin { get { return (int)(offsetMaxMinX * ratioAxPixel); } }
-    private int offsetBoundaryX { get { return thumbRadius + thumbEdgeWidth; } }
+    private int offsetMaxMinX => (!Reverse) ? thumbRadius * 2 : -thumbRadius * 2;
+    private int offsetMaxMin => (int)(offsetMaxMinX * ratioAxPixel);
+    private int offsetBoundaryX => thumbRadius + thumbEdgeWidth;
 
-    private int barMaxX { get { return (!Reverse) ? orientWidth - offsetBoundaryX : offsetBoundaryX; } }
-    private int barMinX { get { return (!Reverse) ? offsetBoundaryX : orientWidth - offsetBoundaryX; } }
-    private int barWidth { get { return BarMax - BarMin; } }
-    private int barWidthX { get { return barMaxX - barMinX; } }
+    private int barMaxX => (!Reverse) ? orientWidth - offsetBoundaryX : offsetBoundaryX;
+    private int barMinX => (!Reverse) ? offsetBoundaryX : orientWidth - offsetBoundaryX;
+    private int barWidth => BarMax - BarMin;
+    private int barWidthX => barMaxX - barMinX;
 
-    private float ratioAxPixel { get { return (float)barWidth / barWidthX; } }
-    private float ratioPixelAx { get { return (float)barWidthX / barWidth; } }
+    private float ratioAxPixel => (float)barWidth / barWidthX;
+    private float ratioPixelAx => (float)barWidthX / barWidth;
 
-    private int rangeMaxX { get { return ax2pixel(RangeMax); } }
-    private int rangeMinX { get { return ax2pixel(RangeMin); } }
-    private int rangeWidth { get { return RangeMax - RangeMin; } }
-    private int rangeWidthX { get { return rangeMaxX - rangeMinX; } }
+    private int rangeMaxX => ax2pixel(RangeMax);
+    private int rangeMinX => ax2pixel(RangeMin);
+    private int rangeWidth => RangeMax - RangeMin;
+    private int rangeWidthX => rangeMaxX - rangeMinX;
 
     private bool IsPressed = false;
     private bool IsHover = false;
@@ -69,10 +69,10 @@ namespace MyLibrary.Controls
 
     #region Fields
 
-    private SliderOrientation orientation = SliderOrientation.Horizontal;
+    private RangeSliderOrientation orientation = RangeSliderOrientation.Horizontal;
     [Category("Appearance")]
     [Description("滑桿軸的方向")]
-    public SliderOrientation Orientation
+    public RangeSliderOrientation Orientation
     {
       get { return orientation; }
       set
@@ -231,7 +231,7 @@ namespace MyLibrary.Controls
 
       Point barLPtL, barLPtR, barRPtL, barRPtR, rangePtL, rangePtR;
       Rectangle rangeMinRect, rangeMaxRect;
-      if (Orientation == SliderOrientation.Horizontal)
+      if (Orientation == RangeSliderOrientation.Horizontal)
       {
         barLPtL = new Point(barMinX, barY);
         barLPtR = new Point(rangeMinX, barY);
@@ -325,19 +325,19 @@ namespace MyLibrary.Controls
       switch (e.KeyCode)
       {
         case Keys.Up:
-          delta = (Orientation == SliderOrientation.Horizontal) ? 0 : -(int)ArrowChange;
+          delta = (Orientation == RangeSliderOrientation.Horizontal) ? 0 : -(int)ArrowChange;
           delta = (!Reverse) ? delta : -delta;
           break;
         case Keys.Down:
-          delta = (Orientation == SliderOrientation.Horizontal) ? 0 : +(int)ArrowChange;
+          delta = (Orientation == RangeSliderOrientation.Horizontal) ? 0 : +(int)ArrowChange;
           delta = (!Reverse) ? delta : -delta;
           break;
         case Keys.Left:
-          delta = (Orientation == SliderOrientation.Horizontal) ? -(int)ArrowChange : 0;
+          delta = (Orientation == RangeSliderOrientation.Horizontal) ? -(int)ArrowChange : 0;
           delta = (!Reverse) ? delta : -delta;
           break;
         case Keys.Right:
-          delta = (Orientation == SliderOrientation.Horizontal) ? +(int)ArrowChange : 0;
+          delta = (Orientation == RangeSliderOrientation.Horizontal) ? +(int)ArrowChange : 0;
           delta = (!Reverse) ? delta : -delta;
           break;
         case Keys.Home:
@@ -390,7 +390,7 @@ namespace MyLibrary.Controls
 
     private void Mouse2Value(MouseEventArgs e)
     {
-      mouseX = (Orientation == SliderOrientation.Horizontal) ? e.Location.X : e.Location.Y;
+      mouseX = (Orientation == RangeSliderOrientation.Horizontal) ? e.Location.X : e.Location.Y;
       switch (selectOn)
       {
         case ("Max"):
@@ -444,7 +444,7 @@ namespace MyLibrary.Controls
 
       IsPressed = true;
 
-      pressX = (Orientation == SliderOrientation.Horizontal) ? e.Location.X : e.Location.Y;
+      pressX = (Orientation == RangeSliderOrientation.Horizontal) ? e.Location.X : e.Location.Y;
       disMinMin = rangeMinX - barMinX;
       disMaxMax = barMaxX - rangeMaxX;
       disMinPress = pressX - rangeMinX;

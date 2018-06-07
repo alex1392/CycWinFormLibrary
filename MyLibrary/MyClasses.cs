@@ -36,10 +36,14 @@ namespace MyLibrary
     Vertical
   }
 
-  public enum SliderOrientation
+  public enum RangeSliderOrientation
   {
     Horizontal,
     Vertical,
+  }
+
+  public enum SliderOrientation
+  { 
     Down,
     Right,
     Up,

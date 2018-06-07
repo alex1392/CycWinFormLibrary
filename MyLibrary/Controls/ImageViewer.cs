@@ -51,7 +51,7 @@ namespace MyLibrary.Controls
 			set
 			{
 				OriginImage = value;
-				Console.WriteLine("Set Image");
+				//Console.WriteLine("Set Image");
 				DisplayImage = UpdateDisplayImage(OriginImage);
 				UpdatePictureBox();
 				UpdateScrollBar();
@@ -134,7 +134,7 @@ namespace MyLibrary.Controls
 					dX = (int)((e.X - AnchorPoint.X) / ZoomFactor);
 					dY = (int)((e.Y - AnchorPoint.Y) / ZoomFactor);
 					ImageBoxPos = new Point(OldBoxPos.X - dX, OldBoxPos.Y - dY);
-					Console.WriteLine("drag");
+					//Console.WriteLine("drag");
 					DisplayImage = UpdateDisplayImage(OriginImage);
 				}//drag
 				else if (args.sender == this && e.Delta != 0 && pictureBox.ClientRectangle.Contains(e.Location))

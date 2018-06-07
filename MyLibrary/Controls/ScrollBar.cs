@@ -58,7 +58,6 @@ namespace MyLibrary.Controls
 		public ScrollBarOrientation Orientation
 		{
 			get { return orientation; }
-
 			set
 			{
 				if (value == orientation)
@@ -76,13 +75,8 @@ namespace MyLibrary.Controls
 			}
 		}
 
-		private bool _UseBarColor = true;
 		[Category("Appearance")]
-		public bool UseBarColor
-		{
-			get { return _UseBarColor; }
-			set { _UseBarColor = value; }
-		}
+		public bool UseBarColor { get; set; }
 
 		private int _Minimum = 0;
 		[Category("Appearance")]
@@ -139,8 +133,19 @@ namespace MyLibrary.Controls
 		private int CapRadius => Thickness / 2;
 		[Category("Appearance")]
 		public int Thickness => Orientation == ScrollBarOrientation.Vertical ? Width : Height;
+    [Category("Appearance")]
+    public int BarLength
+    {
+      get => orientation == ScrollBarOrientation.Vertical ? Height : Width;
+      set
+      {
+        if (orientation == ScrollBarOrientation.Vertical)
+          Height = value;
+        else
+          Width = value;
+      }
+    }
 
-		private int ValueLength => _Maximum - _Minimum;
 		private int _Value = 0;
 		[Category("Appearance")]
 		public int Value
@@ -153,8 +158,10 @@ namespace MyLibrary.Controls
 				Invalidate();
 			}
 		}
-		
-		private int ThumbFrontPosition
+    private int ValueLength => _Maximum - _Minimum;
+
+    private int _ThumbFrontPosition;
+    private int ThumbFrontPosition
 		{
 			get => _ThumbFrontPosition;
 			set
@@ -164,7 +171,6 @@ namespace MyLibrary.Controls
 				Invalidate();
 			}
 		}
-		private int _ThumbFrontPosition;
 		private int ThumbEndPosition => ThumbFrontPosition + ThumbLength; 
 		private int ThumbEndPositionMax => orientation == ScrollBarOrientation.Vertical ?
 				ClientRectangle.Bottom : ClientRectangle.Right;
@@ -174,23 +180,11 @@ namespace MyLibrary.Controls
 		private Rectangle ThumbRectangle => orientation == ScrollBarOrientation.Vertical ?
 				new Rectangle(0, ThumbFrontPosition, Thickness, ThumbLength) :
 				new Rectangle(ThumbFrontPosition, 0, ThumbLength, Thickness);
-		[Category("Appearance")]
-		public int BarLength
-		{
-			get => orientation == ScrollBarOrientation.Vertical ? Height : Width;
-			set
-			{
-				if (orientation == ScrollBarOrientation.Vertical)
-					Height = value;
-				else
-					Width = value;
-			}
-		}
+		
 
 		private int Value2Position(int value)
 		{
 			return LinConvert(value, _Maximum, _Minimum, ThumbFrontPositionMax, ThumbFrontPositionMin);
-			//return (int)(ThumbFrontPositionMin + (value - _Minimum) * ((float)ThumbPositionLength / ValueLength));
 		}
 		private int Position2Value(int position)
 		{
@@ -198,7 +192,6 @@ namespace MyLibrary.Controls
 				return _Minimum;
 			else
 				return LinConvert(position, ThumbFrontPositionMax, ThumbFrontPositionMin, _Maximum, _Minimum);
-				//return (int)(_Minimum + (position - ThumbFrontPositionMin) * ((float)ValueLength / ThumbPositionLength));
 		}
 		#endregion
 
@@ -312,7 +305,7 @@ namespace MyLibrary.Controls
 			new Point(ThumbEndPosition - CapRadius, CapRadius);
 		private void DrawScrollBar(Graphics g, Color backColor, Color thumbColor, Color barColor)
 		{
-			if (_UseBarColor)
+			if (UseBarColor)
 			{
 				using (var pen = new Pen(barColor)
 				{
@@ -354,38 +347,6 @@ namespace MyLibrary.Controls
 				HoverTimer.Stop();
 			}
 		}
-		#endregion
-
-		#region Focus Methods
-
-		protected override void OnGotFocus(EventArgs e)
-		{
-			Invalidate();
-
-			base.OnGotFocus(e);
-		}
-
-		protected override void OnLostFocus(EventArgs e)
-		{
-			Invalidate();
-
-			base.OnLostFocus(e);
-		}
-
-		protected override void OnEnter(EventArgs e)
-		{
-			Invalidate();
-
-			base.OnEnter(e);
-		}
-
-		protected override void OnLeave(EventArgs e)
-		{
-			Invalidate();
-
-			base.OnLeave(e);
-		}
-
 		#endregion
 
 		#region Mouse Methods
@@ -512,13 +473,7 @@ namespace MyLibrary.Controls
 		private int _SmallChange;
 		public int SmallChange
 		{
-			get
-			{
-				if (_SmallChange == 0)
-					return (int)(ValueLength / 10f);
-				else
-					return _SmallChange;
-			}
+			get => (_SmallChange == 0) ? (int)(ValueLength / 10f) : _SmallChange;
 			set
 			{
 				if (_LargeChange == 0)
@@ -529,13 +484,7 @@ namespace MyLibrary.Controls
 		private int _LargeChange;
 		public int LargeChange
 		{
-			get
-			{
-				if (_LargeChange == 0)
-					return (int)(ValueLength / 5f);
-				else
-					return _LargeChange;
-			}
+			get => (_LargeChange == 0) ? (int)(ValueLength / 5f) : _LargeChange;
 			set
 			{
 				_LargeChange = Clamp(value, ValueLength, _SmallChange);
@@ -550,54 +499,32 @@ namespace MyLibrary.Controls
 			switch (e.KeyCode)
 			{
 				case Keys.Up:
-					{
-						if (orientation == ScrollBarOrientation.Vertical)
-							Value -= SmallChange; //Position Changed, Refresh
+            Value -= (orientation == ScrollBarOrientation.Vertical) ? SmallChange : 0; //Position Changed, Refresh
 						break;
-					}
 				case Keys.Down:
-					{
-						if (orientation == ScrollBarOrientation.Vertical)
-							Value += SmallChange;
+							Value += (orientation == ScrollBarOrientation.Vertical) ? SmallChange : 0;
 						break;
-					}
 				case Keys.Right:
-					{
-						if (orientation == ScrollBarOrientation.Horizontal)
-							Value += SmallChange;
+							Value += (orientation == ScrollBarOrientation.Horizontal) ? SmallChange : 0;
 						break;
-					}
 				case Keys.Left:
-					{
-						if (orientation == ScrollBarOrientation.Horizontal)
-							Value -= SmallChange;
+							Value -= (orientation == ScrollBarOrientation.Horizontal) ? SmallChange : 0;
 						break;
-					}
 				case Keys.PageUp:
-					{
 						Value -= LargeChange;
 						break;
-					}
 				case Keys.PageDown:
-					{
 						Value += LargeChange;
 						break;
-					}
 				case Keys.End:
-					{
 						Value = _Maximum;
 						break;
-					}
 				case Keys.Home:
-					{
 						Value = _Minimum;
 						break;
-					}
 				default:
-					{
 						isScroll = false;
 						break;
-					}
 			}
 			if (isScroll)
 			{
@@ -619,17 +546,6 @@ namespace MyLibrary.Controls
 		#endregion
 
 		#region Management Methods
-		protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-		{
-			base.SetBoundsCore(x, y, width, height, specified);
-
-			if (DesignMode)
-			{
-				//SetupScrollBar();
-				Invalidate();
-			}
-		}
-
 		protected override void OnSizeChanged(EventArgs e)
 		{
 			base.OnSizeChanged(e);

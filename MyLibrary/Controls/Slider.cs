@@ -45,23 +45,23 @@ namespace MyLibrary.Controls
 			}
 		}
 
-		private int ThumbEdgeWidth { get { return Clamp(OrientHeight * (2f / 20f), int.MaxValue, 1); } }
-		private int ThumbHeight { get { return Clamp(OrientHeight * (10f / 20f), int.MaxValue, 6); } }
-		private int ThumbWidth { get { return ThumbHeight; } }
-		private int BarHeightY { get { return Clamp(OrientHeight * (5f / 20f), int.MaxValue, 4); } }
-		private int BarY { get { return (int)(OrientHeight * 0.5); } }
-		private float FontSize { get { return ThumbWidth * 0.4f; } }
+		private int ThumbEdgeWidth => Clamp(OrientHeight * (2f / 20f), int.MaxValue, 1);
+		private int ThumbHeight => Clamp(OrientHeight * (10f / 20f), int.MaxValue, 6);
+		private int ThumbWidth => ThumbHeight;
+		private int BarHeightY => Clamp(OrientHeight * (5f / 20f), int.MaxValue, 4);
+		private int BarY => (int)(OrientHeight * 0.5);
+		private float FontSize => ThumbWidth * 0.4f;
 
-		private float RatioAxPixel { get { return (float)BarWidth / BarWidthX; } }
-		private float RatioPixelAx { get { return (float)BarWidthX / BarWidth; } }
-		private int OffsetBoundaryX { get { return ThumbWidth / 2 + ThumbEdgeWidth; } }
+		private float RatioAxPixel => (float)BarWidth / BarWidthX;
+		private float RatioPixelAx => (float)BarWidthX / BarWidth;
+		private int OffsetBoundaryX => ThumbWidth / 2 + ThumbEdgeWidth;
 
-		private int BarMaxX { get { return (!Reverse) ? OrientWidth - OffsetBoundaryX : OffsetBoundaryX; } }
-		private int BarMinX { get { return (!Reverse) ? OffsetBoundaryX : OrientWidth - OffsetBoundaryX; } }
-		private int BarWidth { get { return BarMax - BarMin; } }
-		private int BarWidthX { get { return BarMaxX - BarMinX; } }
+		private int BarMaxX => (!Reverse) ? OrientWidth - OffsetBoundaryX : OffsetBoundaryX;
+		private int BarMinX => (!Reverse) ? OffsetBoundaryX : OrientWidth - OffsetBoundaryX;
+		private int BarWidth => BarMax - BarMin;
+		private int BarWidthX => BarMaxX - BarMinX;
 
-		private int ValueX { get { return ax2pixel(Value); } }
+		private int ValueX => ax2pixel(Value);
 		
 		//以左上角點開始 順時針排序
 		private int[] ThumbXs
