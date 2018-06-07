@@ -27,52 +27,12 @@ namespace MyLibrary.Controls
     }
     #endregion
 
-    #region Private Properties
-    private int orientWidth => (Orientation == RangeSliderOrientation.Horizontal) ? Width : Height;
-    private int orientHeight => (Orientation == RangeSliderOrientation.Horizontal) ? Height : Width;
-
-    private int thumbRadius => Clamp(orientHeight * (6.5f / 20f), int.MaxValue, 3);
-    private int thumbEdgeWidth => Clamp(orientHeight * (2.5f / 20f), int.MaxValue, 1);
-    private int barY => orientHeight / 2;
-    private int barHeightY => Clamp(orientHeight * (8f / 20f), int.MaxValue, 4);
-    private float fontSize => thumbRadius * 0.7f;
-
-    private int offsetMaxMinX => (!Reverse) ? thumbRadius * 2 : -thumbRadius * 2;
-    private int offsetMaxMin => (int)(offsetMaxMinX * ratioAxPixel);
-    private int offsetBoundaryX => thumbRadius + thumbEdgeWidth;
-
-    private int barMaxX => (!Reverse) ? orientWidth - offsetBoundaryX : offsetBoundaryX;
-    private int barMinX => (!Reverse) ? offsetBoundaryX : orientWidth - offsetBoundaryX;
-    private int barWidth => BarMax - BarMin;
-    private int barWidthX => barMaxX - barMinX;
-
-    private float ratioAxPixel => (float)barWidth / barWidthX;
-    private float ratioPixelAx => (float)barWidthX / barWidth;
-
-    private int rangeMaxX => ax2pixel(RangeMax);
-    private int rangeMinX => ax2pixel(RangeMin);
-    private int rangeWidth => RangeMax - RangeMin;
-    private int rangeWidthX => rangeMaxX - rangeMinX;
-
-    private bool IsPressed = false;
-    private bool IsHover = false;
-
-    private string selectOn;
-    private int pressX;
-    private int mouseX;
-    private int disMinMin;
-    private int disMaxMax;
-    private int disMinPress;
-    private int disMaxPress;
-
-    #endregion
-
     #region Fields
 
-    private RangeSliderOrientation orientation = RangeSliderOrientation.Horizontal;
+    private HVOrientation orientation = HVOrientation.Horizontal;
     [Category("Appearance")]
     [Description("滑桿軸的方向")]
-    public RangeSliderOrientation Orientation
+    public HVOrientation Orientation
     {
       get { return orientation; }
       set
@@ -93,27 +53,41 @@ namespace MyLibrary.Controls
     [Description("是否使滑桿數線方向相反(預設是由上至下或由左至右)")]
     public bool Reverse { get; set; } = false;
 
+    private int _RangeMin = 50;
     [Category("Data")]
     [Description("滑桿範圍之最小值")]
-    public int RangeMin { get; set; } = 50;
+    public int RangeMin
+    {
+      get => _RangeMin;
+      set
+      {
+        _RangeMin = Clamp(value, RangeMax - OffsetMaxMinValue, BarMin);
+      }
+    }
+
+    private int _RangeMax = 200;
     [Category("Data")]
     [Description("滑桿範圍之最大值")]
-    public int RangeMax { get; set; } = 200;
+    public int RangeMax
+    {
+      get => _RangeMax;
+      set
+      {
+        _RangeMax = Clamp(value, BarMax, RangeMin + OffsetMaxMinValue);
+      }
+    }
+
     [Category("Data")]
     [Description("滑桿軸之最小值")]
     public int BarMin { get; set; } = 0;
+    
     [Category("Data")]
     [Description("滑桿軸之最大值")]
     public int BarMax { get; set; } = 255;
-    [Category("Data")]
-    [Description("按一下方向鍵使滑桿移動之數值")]
-    public uint ArrowChange { get; set; } = 1;
-    [Category("Data")]
-    [Description("按一下PageUp/PageDown使滑桿移動之數值")]
-    public uint PageChange { get; set; } = 5;
-    [Category("Data")]
-    [Description("操作滑鼠滾輪使滑桿移動之數值")]
-    public uint ScrollChange { get; set; } = 10;
+
+    [Category("Appearance")]
+    [Description("控制項顏色")]
+    public Color Color { get; set; } = Color.FromKnownColor(KnownColor.MenuHighlight);
 
     #endregion
 
@@ -129,7 +103,6 @@ namespace MyLibrary.Controls
                ControlStyles.UserMouse |
                ControlStyles.UserPaint, true);
 
-      BackColor = Color.Transparent;
       SetProperties();
     }
 
@@ -138,131 +111,140 @@ namespace MyLibrary.Controls
       HoverTimer = new Timer();
       HoverTimer.Tick += HoverTimer_Tick;
       HoverTimer.Interval = 10;
+
+      MoveTimer = new Timer();
+      MoveTimer.Tick += MoveTimer_Tick;
+      MoveTimer.Interval = 5;
+
+      this.Width = 200;
+      this.Height = 10;
+      BackColor = Color.Transparent;
     }
 
     #endregion
 
     #region Paint Methods
-    [Category("Appearance")]
-    public Color Color { get; set; } = Color.FromKnownColor(KnownColor.MenuHighlight);
-
+    
     private Color backColor => (CustomBackground) ? BackColor : Parent.BackColor;
-    private Color thumbColor;
+    private Color thumbEdgeColor;
     private Color barColor;
     private Color textColor;
-    private sealed class Colors
-    {
-      private static int ThumbGrayNormal = 120;
-      private static int ThumbGrayHover = ThumbGrayNormal - 40;
-      private static int ThumbGrayPressed = ThumbGrayHover - 60;
-      private static int BarGrayNormal = ThumbGrayNormal + 50;
-      private static int BarGrayHover = ThumbGrayHover + 50;
-      private static int BarGrayPressed = BarGrayHover;
-      public sealed class Thumb
-      {
-        public static Color Normal = Color.FromArgb(ThumbGrayNormal, ThumbGrayNormal, ThumbGrayNormal);
-        public static Color Hover = Color.FromArgb(ThumbGrayHover, ThumbGrayHover, ThumbGrayHover);
-        public static Color Pressed = Color.FromArgb(ThumbGrayPressed, ThumbGrayPressed, ThumbGrayPressed);
-        public static Color Disabled = Color.FromArgb(221, 221, 221);
-      }
-      public sealed class Bar
-      {
-        public static Color Normal = Color.FromArgb(BarGrayNormal, BarGrayNormal, BarGrayNormal);
-        public static Color Hover = Color.FromArgb(BarGrayHover, BarGrayHover, BarGrayHover);
-        public static Color Pressed = Color.FromArgb(BarGrayPressed, BarGrayPressed, BarGrayPressed);
-        public static Color Disabled = Color.FromArgb(BarGrayNormal, BarGrayNormal, BarGrayNormal);
-      }
-      public sealed class Text
-      {
-        public static Color Normal = Color.FromArgb(0, 0, 0);
-        public static Color Hover = Color.FromArgb(255, 255, 255);
-        public static Color Pressed = Color.FromArgb(255, 255, 255);
-        public static Color Disabled = Color.FromArgb(136, 136, 136);
-      }
-    }
+    private Color thumbColor;
+    
     protected override void OnPaint(PaintEventArgs e)
     {
       if (!Enabled)
       {
-        thumbColor = Colors.Thumb.Disabled;
-        barColor = Colors.Bar.Disabled;
-        textColor = Colors.Text.Disabled;
+        thumbColor = WriteOut(Color,50);
+        thumbEdgeColor = ShadeColors.Thumb.Normal;
+        barColor = ShadeColors.Bar.Disabled;
+        textColor = ShadeColors.Text.Disabled;
       }
       else if (IsPressed)
       {
-        thumbColor = Colors.Thumb.Pressed;
-        barColor = Colors.Bar.Pressed;
-        textColor = Colors.Text.Pressed;
+        thumbColor = Color;
+        thumbEdgeColor = ShadeColors.Thumb.Pressed;
+        barColor = ShadeColors.Bar.Pressed;
+        textColor = ShadeColors.Text.Pressed;
       }
-      else if (IsHover)
+      else if (IsFocus)
       {
-        thumbColor = Colors.Thumb.Hover;
-        barColor = Colors.Bar.Hover;
-        textColor = Colors.Text.Hover;
+        thumbColor = Color;
+        thumbEdgeColor = ShadeColors.Thumb.Focus;
+        barColor = ShadeColors.Bar.Focus;
+        textColor = ShadeColors.Text.Focus;
       }
       else
       {
-        thumbColor = Colors.Thumb.Normal;
-        barColor = Colors.Bar.Normal;
-        textColor = Colors.Text.Normal;
+        thumbColor = Color;
+        thumbEdgeColor = ShadeColors.Thumb.Normal;
+        barColor = ShadeColors.Bar.Normal;
+        textColor = ShadeColors.Text.Normal;
       }
 
       if (HoverTimer.Enabled)
       {
-        barColor = Interpolate(Colors.Bar.Normal, Colors.Bar.Hover, HoverRatio);
-        thumbColor = Interpolate(Colors.Thumb.Normal, Colors.Thumb.Hover, HoverRatio);
-        textColor = Interpolate(Colors.Text.Normal, Colors.Text.Hover, HoverRatio);
+        barColor = Interpolate(ShadeColors.Bar.Normal, ShadeColors.Bar.Focus, HoverRatio);
+        thumbEdgeColor = Interpolate(ShadeColors.Thumb.Normal, ShadeColors.Thumb.Focus, HoverRatio);
+        textColor = Interpolate(ShadeColors.Text.Normal, ShadeColors.Text.Focus, HoverRatio);
       }
 
       e.Graphics.Clear(backColor);
-      DrawRangeSlider(e.Graphics, barColor, thumbColor, textColor);
+      DrawRangeSlider(e.Graphics);
 
-      if (false && IsHover)
+      if (false && IsFocus)
         ControlPaint.DrawFocusRectangle(e.Graphics, ClientRectangle);
     }
 
-    private void DrawRangeSlider(Graphics g, Color barColor, Color thumbColor, Color textColor)
-    {
-      SolidBrush thumbBrushInner = new SolidBrush(Color);
-      Pen thumbPen = new Pen(thumbColor) { Width = thumbEdgeWidth };
-      Pen barPen = new Pen(barColor) { StartCap = LineCap.Round, EndCap = LineCap.Round, Width = barHeightY };
-      Pen rangePen = new Pen(Color) { Width = barHeightY };
-      Font font = new Font("Segoe UI", fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-
-      Point barLPtL, barLPtR, barRPtL, barRPtR, rangePtL, rangePtR;
-      Rectangle rangeMinRect, rangeMaxRect;
-      if (Orientation == RangeSliderOrientation.Horizontal)
+    private int ClientLength => (orientation == HVOrientation.Horizontal) ? 
+      Width : Height;
+    private int ClientThick => (orientation == HVOrientation.Horizontal) ? 
+      Height : Width;
+    private int ThumbRadius => (int)(ClientThick * 0.4);
+    private int ThumbEdgeWidth => ThumbRadius / 3;
+    private int BarPosY => ClientThick / 2;
+    private int BarThick => (int)(ThumbRadius * 1.2f);
+    private float FontSize => ThumbRadius * 0.7f;
+    private int OffsetMaxMinPos => (!Reverse) ? ThumbRadius * 2 : -ThumbRadius * 2;
+    private int OffsetMaxMinValue => (int)(OffsetMaxMinPos * ValuePosRatio);
+    private int OffsetBoundaryPos => ThumbRadius + ThumbEdgeWidth;
+    private int BarPosMax => (!Reverse) ? ClientLength - OffsetBoundaryPos : OffsetBoundaryPos;
+    private int BarPosMin => (!Reverse) ? OffsetBoundaryPos : ClientLength - OffsetBoundaryPos;
+    private int ValueLength => BarMax - BarMin;
+    private int BarLength => BarPosMax - BarPosMin;
+    private int RangeMaxPos => Value2Pos(RangeMax);
+    private int RangeMinPos => Value2Pos(RangeMin);
+    private int RangeValueLength => RangeMax - RangeMin;
+    private int RangePosLength => RangeMaxPos - RangeMinPos;
+    private float ValuePosRatio => (float)ValueLength / BarLength;
+    private float PosValueRatio => (float)BarLength / ValueLength;
+    private int Pos2Value(int pos) => LinConvert(pos, BarPosMax, BarPosMin, BarMax, BarMin);
+    private int Value2Pos(int value) => LinConvert(value, BarMax, BarMin, BarPosMax, BarPosMin);
+    private void DrawRangeSlider(Graphics g)
+    {     
+      Point BarPoint1, BarPoint2, RangePoint1, RangePoint2;
+      Rectangle ThumbMinRect, ThumbMaxRect;
+      if (Orientation == HVOrientation.Horizontal)
       {
-        barLPtL = new Point(barMinX, barY);
-        barLPtR = new Point(rangeMinX, barY);
-        barRPtL = new Point(rangeMaxX, barY);
-        barRPtR = new Point(barMaxX, barY);
-        rangePtL = new Point(rangeMinX, barY);
-        rangePtR = new Point(rangeMaxX, barY);
-        rangeMinRect = new Rectangle(rangeMinX - thumbRadius, barY - thumbRadius, thumbRadius * 2, thumbRadius * 2);
-        rangeMaxRect = new Rectangle(rangeMaxX - thumbRadius, barY - thumbRadius, thumbRadius * 2, thumbRadius * 2);
+        BarPoint1 = new Point(BarPosMin, BarPosY);
+        BarPoint2 = new Point(BarPosMax, BarPosY);
+        RangePoint1 = new Point(RangeMinPos, BarPosY);
+        RangePoint2 = new Point(RangeMaxPos, BarPosY);
+        ThumbMinRect = new Rectangle(RangeMinPos - ThumbRadius, BarPosY - ThumbRadius, ThumbRadius * 2, ThumbRadius * 2);
+        ThumbMaxRect = new Rectangle(RangeMaxPos - ThumbRadius, BarPosY - ThumbRadius, ThumbRadius * 2, ThumbRadius * 2);
       }
       else
       {
-        barLPtL = new Point(barY, barMinX);
-        barLPtR = new Point(barY, rangeMinX);
-        barRPtL = new Point(barY, rangeMaxX);
-        barRPtR = new Point(barY, barMaxX);
-        rangePtL = new Point(barY, rangeMinX);
-        rangePtR = new Point(barY, rangeMaxX);
-        rangeMinRect = new Rectangle(barY - thumbRadius, rangeMinX - thumbRadius, thumbRadius * 2, thumbRadius * 2);
-        rangeMaxRect = new Rectangle(barY - thumbRadius, rangeMaxX - thumbRadius, thumbRadius * 2, thumbRadius * 2);
+        BarPoint1 = new Point(BarPosY, BarPosMin);
+        BarPoint2 = new Point(BarPosY, BarPosMax);
+        RangePoint1 = new Point(BarPosY, RangeMinPos);
+        RangePoint2 = new Point(BarPosY, RangeMaxPos);
+        ThumbMinRect = new Rectangle(BarPosY - ThumbRadius, RangeMinPos - ThumbRadius, ThumbRadius * 2, ThumbRadius * 2);
+        ThumbMaxRect = new Rectangle(BarPosY - ThumbRadius, RangeMaxPos - ThumbRadius, ThumbRadius * 2, ThumbRadius * 2);
       }
 
-      g.DrawLine(barPen, barLPtL, barLPtR);
-      g.DrawLine(barPen, barRPtL, barRPtR);
-      g.DrawLine(rangePen, rangePtL, rangePtR);
-      g.DrawEllipse(thumbPen, rangeMinRect);
-      g.FillEllipse(thumbBrushInner, rangeMinRect);
-      g.DrawEllipse(thumbPen, rangeMaxRect);
-      g.FillEllipse(thumbBrushInner, rangeMaxRect);
-      TextRenderer.DrawText(g, " " + RangeMin.ToString(), font, rangeMinRect, textColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
-      TextRenderer.DrawText(g, " " + RangeMax.ToString(), font, rangeMaxRect, textColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
+      using (Pen barPen = new Pen(barColor) { StartCap = LineCap.Round, EndCap = LineCap.Round, Width = BarThick })
+      {
+        g.DrawLine(barPen, BarPoint1, BarPoint2);
+      }
+      using (Pen rangePen = new Pen(thumbColor) { Width = BarThick })
+      {
+        g.DrawLine(rangePen, RangePoint1, RangePoint2);
+      }
+      using (Pen thumbPen = new Pen(thumbEdgeColor) { Width = ThumbEdgeWidth })
+      {
+        using (SolidBrush thumbBrushInner = new SolidBrush(Color))
+        {
+          g.DrawEllipse(thumbPen, ThumbMinRect);
+          g.FillEllipse(thumbBrushInner, ThumbMinRect);
+          g.DrawEllipse(thumbPen, ThumbMaxRect);
+          g.FillEllipse(thumbBrushInner, ThumbMaxRect);
+        }
+      }
+
+      Font font = new Font("Segoe UI", FontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+      TextRenderer.DrawText(g, " " + RangeMin.ToString(), font, ThumbMinRect, textColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
+      TextRenderer.DrawText(g, " " + RangeMax.ToString(), font, ThumbMaxRect, textColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
     }
 
     #endregion
@@ -274,105 +256,151 @@ namespace MyLibrary.Controls
     private void HoverTimer_Tick(object sender, EventArgs e)
     {
       HoverRatio = (IsIncreasing) ? HoverRatio + 0.05f : HoverRatio - 0.05f;
-      if (!IsIn(HoverRatio, 1, 0))
+      if (!IsIn(HoverRatio, 1, 0, true))
       {
         HoverTimer.Stop();
+      }
+      Refresh();
+    }
+
+    private Timer MoveTimer;
+    private float MoveRatio; // 0~1
+    private int MaxStartValue;
+    private int MaxEndValue;
+    private int MinStartValue;
+    private int MinEndValue;
+    private void MoveTimer_Tick(object sender, EventArgs e)
+    {
+      MoveRatio += 0.2f;
+      if (!IsIn(MoveRatio, 1, 0, true))
+      {
+        MoveTimer.Stop();
+      }
+      switch (selectOn)
+      {
+        case "Max":
+          RangeMax = (int)Interpolate(MaxStartValue, MaxEndValue, MoveRatio);
+          break;
+        case "Min":
+          RangeMin = (int)Interpolate(MinStartValue, MinEndValue, MoveRatio);
+          break;
+        case null:
+        case "Range":
+          RangeMax = (int)Interpolate(MaxStartValue, MaxEndValue, MoveRatio);
+          RangeMin = (int)Interpolate(MinStartValue, MinEndValue, MoveRatio);
+          break;
+        default:
+          break;
       }
       Refresh();
     }
     #endregion
 
     #region Focus Methods
-
+    private bool IsPressed = false;
+    private bool IsFocus = false;
     protected override void OnGotFocus(EventArgs e)
     {
-      Invalidate();
-
+      IsFocus = true;
+      IsIncreasing = true;
+      HoverRatio = 0;
+      HoverTimer.Start();
       base.OnGotFocus(e);
     }
-
     protected override void OnLostFocus(EventArgs e)
     {
-      Invalidate();
-
+      IsFocus = false;
+      IsIncreasing = false;
+      if (!HoverTimer.Enabled)
+      {
+        HoverRatio = 1;
+        HoverTimer.Start();
+      }
       base.OnLostFocus(e);
     }
-
-    protected override void OnEnter(EventArgs e)
+    protected override void OnMouseEnter(EventArgs e)
     {
-      Invalidate();
+      if (!IsFocus)
+      {
+        Focus();
+        IsFocus = true;
+        IsIncreasing = true;
+        HoverRatio = 0;
+        HoverTimer.Start();
+      }
 
-      base.OnEnter(e);
+      base.OnMouseEnter(e);
     }
-
-    protected override void OnLeave(EventArgs e)
-    {
-      Invalidate();
-
-      base.OnLeave(e);
-    }
-
     #endregion
 
     #region Keyboard Methods
-
+    private int SmallChange => Clamp(ValueLength / 20f, int.MaxValue, 1);
+    private int LargeChange => Clamp(ValueLength / 10f, int.MaxValue, 1);
     protected override void OnKeyDown(KeyEventArgs e)
     {
       base.OnKeyDown(e);
-      if (!IsHover || selectOn == null) return;
+      if (!IsFocus)
+        return;
 
       int delta = 0;
       switch (e.KeyCode)
       {
         case Keys.Up:
-          delta = (Orientation == RangeSliderOrientation.Horizontal) ? 0 : -(int)ArrowChange;
+          delta = (Orientation == HVOrientation.Horizontal) ? 0 : -SmallChange;
           delta = (!Reverse) ? delta : -delta;
           break;
         case Keys.Down:
-          delta = (Orientation == RangeSliderOrientation.Horizontal) ? 0 : +(int)ArrowChange;
+          delta = (Orientation == HVOrientation.Horizontal) ? 0 : +SmallChange;
           delta = (!Reverse) ? delta : -delta;
           break;
         case Keys.Left:
-          delta = (Orientation == RangeSliderOrientation.Horizontal) ? -(int)ArrowChange : 0;
+          delta = (Orientation == HVOrientation.Horizontal) ? -SmallChange : 0;
           delta = (!Reverse) ? delta : -delta;
           break;
         case Keys.Right:
-          delta = (Orientation == RangeSliderOrientation.Horizontal) ? +(int)ArrowChange : 0;
+          delta = (Orientation == HVOrientation.Horizontal) ? +SmallChange : 0;
           delta = (!Reverse) ? delta : -delta;
           break;
         case Keys.Home:
-          delta = -barWidth;
+          delta = -ValueLength;
           break;
         case Keys.End:
-          delta = barWidth;
+          delta = ValueLength;
           break;
         case Keys.PageDown:
-          delta = -(int)PageChange;
+          delta = -LargeChange;
           break;
         case Keys.PageUp:
-          delta = +(int)PageChange;
+          delta = +LargeChange;
           break;
       }
+
+      MoveRatio = 0;
       switch (selectOn)
       {
-        case ("Max"):
-          RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
+        case "Max":
+          MaxStartValue = RangeMax;
+          MaxEndValue = RangeMax + delta;
           break;
-        case ("Min"):
-          RangeMin = Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
+        case "Min":
+          MinStartValue = RangeMin;
+          MinEndValue = RangeMin + delta;
           break;
-        case ("range"):
-          RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
-          RangeMin = Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
+        case "Range":
+        case null:
+          MaxStartValue = RangeMax;
+          MaxEndValue = RangeMax + delta;
+          MinStartValue = RangeMin;
+          MinEndValue = RangeMin + delta; 
           break;
       }
+      MoveTimer.Start();
 
       OnValueChanged();
       OnScroll();
 
       Invalidate();
     }
-
     protected override bool ProcessDialogKey(Keys keyData)
     {
       if (keyData == Keys.Tab | ModifierKeys == Keys.Shift)
@@ -383,58 +411,48 @@ namespace MyLibrary.Controls
         return true;
       }
     }
-
     #endregion
 
     #region Mouse Methods
-
+    private string selectOn;
+    private int pressX;
+    private int mouseX;
+    private int disMinMin;
+    private int disMaxMax;
+    private int disMinPress;
+    private int disMaxPress;
     private void Mouse2Value(MouseEventArgs e)
     {
-      mouseX = (Orientation == RangeSliderOrientation.Horizontal) ? e.Location.X : e.Location.Y;
+      mouseX = (Orientation == HVOrientation.Horizontal) ? e.Location.X : e.Location.Y;
       switch (selectOn)
       {
         case ("Max"):
-          mouseX = Clamp(mouseX, barMaxX, rangeMinX + offsetMaxMinX);
-          RangeMax = pixel2ax(mouseX);
+          mouseX = Clamp(mouseX, BarPosMax, RangeMinPos + OffsetMaxMinPos);
+          RangeMax = Pos2Value(mouseX);
           break;
         case ("Min"):
-          mouseX = Clamp(mouseX, rangeMaxX - offsetMaxMinX, barMinX);
-          RangeMin = pixel2ax(mouseX);
+          mouseX = Clamp(mouseX, RangeMaxPos - OffsetMaxMinPos, BarPosMin);
+          RangeMin = Pos2Value(mouseX);
           break;
-        case ("range"):
+        case ("Range"):
           mouseX = Clamp(mouseX, pressX + disMaxMax, pressX - disMinMin);
-          RangeMin = pixel2ax(mouseX - disMinPress);
-          RangeMax = pixel2ax(mouseX + disMaxPress);
+          RangeMin = Pos2Value(mouseX - disMinPress);
+          RangeMax = Pos2Value(mouseX + disMaxPress);
           break;
         default:
           break;
       }
     }
-
-    protected override void OnMouseEnter(EventArgs e)
+    protected override void OnMouseMove(MouseEventArgs e)
     {
-      Focus();
-      IsHover = true;
-      IsIncreasing = true;
-      HoverRatio = 0;
-      HoverTimer.Start();
-      Invalidate();
+      base.OnMouseMove(e);
+      if (!(IsPressed && e.Button == MouseButtons.Left))
+        return;
 
-      base.OnMouseEnter(e);
-    }
-    protected override void OnMouseLeave(EventArgs e)
-    {
-      IsHover = false;
+      Mouse2Value(e);
 
-      IsIncreasing = false;
-      if (!HoverTimer.Enabled)
-      {
-        HoverRatio = 1;
-        HoverTimer.Start();
-      }
-      Invalidate();
-
-      base.OnMouseLeave(e);
+      OnScroll();
+      Invalidate(); //更新畫面
     }
 
     protected override void OnMouseDown(MouseEventArgs e)
@@ -444,25 +462,24 @@ namespace MyLibrary.Controls
 
       IsPressed = true;
 
-      pressX = (Orientation == RangeSliderOrientation.Horizontal) ? e.Location.X : e.Location.Y;
-      disMinMin = rangeMinX - barMinX;
-      disMaxMax = barMaxX - rangeMaxX;
-      disMinPress = pressX - rangeMinX;
-      disMaxPress = rangeMaxX - pressX;
+      pressX = (Orientation == HVOrientation.Horizontal) ? e.Location.X : e.Location.Y;
+      disMinMin = RangeMinPos - BarPosMin;
+      disMaxMax = BarPosMax - RangeMaxPos;
+      disMinPress = pressX - RangeMinPos;
+      disMaxPress = RangeMaxPos - pressX;
 
-      if (Math.Abs(disMaxPress) < thumbRadius)
+      if (Math.Abs(disMaxPress) < ThumbRadius)
         selectOn = "Max";
-      else if (Math.Abs(disMinPress) < thumbRadius)
+      else if (Math.Abs(disMinPress) < ThumbRadius)
         selectOn = "Min";
-      else if (IsIn(pressX, rangeMaxX, rangeMinX))
-        selectOn = "range";
+      else if (IsIn(pressX, RangeMaxPos, RangeMinPos))
+        selectOn = "Range";
       else
         selectOn = null;
 
       Mouse2Value(e);
 
       //OnScroll();
-      HoverTimer.Stop();
       Refresh();
     }
     protected override void OnMouseUp(MouseEventArgs e)
@@ -475,34 +492,25 @@ namespace MyLibrary.Controls
       Invalidate();
     }
 
-    protected override void OnMouseMove(MouseEventArgs e)
-    {
-      base.OnMouseMove(e);
-      if (!(IsPressed && e.Button == MouseButtons.Left))
-        return;
-
-      Mouse2Value(e);
-
-      OnScroll();
-      Invalidate(); //更新畫面
-    }
+    private int MouseWheelBarPartitions = 20;
     protected override void OnMouseWheel(MouseEventArgs e)
     {
       base.OnMouseWheel(e);
-      if (!IsHover || selectOn == null) return;
+      if (!IsFocus) return;
 
-      int delta = (int)(e.Delta / Math.Abs(e.Delta) * ScrollChange);
+      int delta = (int)(e.Delta / 60f * ValueLength / MouseWheelBarPartitions);
       switch (selectOn)
       {
         case ("Max"):
-          RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
+          RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + OffsetMaxMinValue);
           break;
         case ("Min"):
-          RangeMin = Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
+          RangeMin = Clamp(RangeMin + delta, RangeMax - OffsetMaxMinValue, BarMin);
           break;
-        case ("range"):
-          RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + offsetMaxMin);
-          RangeMin = Clamp(RangeMin + delta, RangeMax - offsetMaxMin, BarMin);
+        case null:
+        case ("Range"):
+          RangeMax = Clamp(RangeMax + delta, BarMax, RangeMin + OffsetMaxMinValue);
+          RangeMin = Clamp(RangeMin + delta, RangeMax - OffsetMaxMinValue, BarMin);
           break;
       }
 
@@ -512,28 +520,12 @@ namespace MyLibrary.Controls
     }
     #endregion
 
-    #region Overridden Methods
-
+    #region Management Methods
     protected override void OnEnabledChanged(EventArgs e)
     {
       base.OnEnabledChanged(e);
       Invalidate();
     }
-
-    #endregion
-
-    #region Helper Methods
-
-    private int pixel2ax(int pixel)
-    {
-      return (int)Math.Round((pixel - barMinX) * ratioAxPixel + BarMin);
-    }
-
-    private int ax2pixel(int ax)
-    {
-      return (int)Math.Round((ax - BarMin) * ratioPixelAx + barMinX);
-    }
-
     #endregion
   }
 }

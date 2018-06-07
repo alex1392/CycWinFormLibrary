@@ -10,7 +10,38 @@ using System.Windows.Forms;
 
 namespace MyLibrary
 {
-
+  public sealed class ShadeColors
+  {
+    private static int ThumbNormal = 120;
+    private static int ThumbFocus = ThumbNormal - 40;
+    private static int ThumbPressed = ThumbFocus - 60;
+    private static int ThumbDisabled = ThumbNormal + 50;
+    private static int BarNormal = ThumbNormal + 50;
+    private static int BarFocus = ThumbFocus + 50;
+    private static int BarPressed = BarFocus;
+    private static int BarDisabled = BarNormal + 50;
+    public sealed class Thumb
+    {
+      public static Color Normal = Color.FromArgb(ThumbNormal, ThumbNormal, ThumbNormal);
+      public static Color Focus = Color.FromArgb(ThumbFocus, ThumbFocus, ThumbFocus);
+      public static Color Pressed = Color.FromArgb(ThumbPressed, ThumbPressed, ThumbPressed);
+      public static Color Disabled = Color.FromArgb(ThumbDisabled, ThumbDisabled, ThumbDisabled);
+    }
+    public sealed class Bar
+    {
+      public static Color Normal = Color.FromArgb(BarNormal, BarNormal, BarNormal);
+      public static Color Focus = Color.FromArgb(BarFocus, BarFocus, BarFocus);
+      public static Color Pressed = Color.FromArgb(BarPressed, BarPressed, BarPressed);
+      public static Color Disabled = Color.FromArgb(BarDisabled, BarDisabled, BarDisabled);
+    }
+    public sealed class Text
+    {
+      public static Color Normal = Color.FromArgb(0, 0, 0);
+      public static Color Focus = Color.FromArgb(255, 255, 255);
+      public static Color Pressed = Color.FromArgb(255, 255, 255);
+      public static Color Disabled = Color.FromArgb(255, 255, 255);
+    }
+  }
 
   public sealed class Colors
   {
@@ -30,19 +61,13 @@ namespace MyLibrary
     public static Color Yellow = Color.FromArgb(255, 196, 37);
   }
 
-  public enum ScrollBarOrientation
-  {
-    Horizontal,
-    Vertical
-  }
-
-  public enum RangeSliderOrientation
+  public enum HVOrientation
   {
     Horizontal,
     Vertical,
   }
 
-  public enum SliderOrientation
+  public enum UDLROrientation
   { 
     Down,
     Right,

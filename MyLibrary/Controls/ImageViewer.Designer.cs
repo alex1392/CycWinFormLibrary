@@ -51,15 +51,12 @@
 			// ScrollBarHorizontal
 			// 
 			this.ScrollBarHorizontal.BarLength = 306;
-			this.ScrollBarHorizontal.LargeChange = 20;
 			this.ScrollBarHorizontal.Location = new System.Drawing.Point(3, 261);
 			this.ScrollBarHorizontal.Maximum = 100;
 			this.ScrollBarHorizontal.Minimum = 0;
-			this.ScrollBarHorizontal.MouseWheelBarPartitions = 20;
 			this.ScrollBarHorizontal.Name = "ScrollBarHorizontal";
-			this.ScrollBarHorizontal.Orientation = MyLibrary.ScrollBarOrientation.Horizontal;
+			this.ScrollBarHorizontal.Orientation = MyLibrary.HVOrientation.Horizontal;
 			this.ScrollBarHorizontal.Size = new System.Drawing.Size(306, 18);
-			this.ScrollBarHorizontal.SmallChange = 10;
 			this.ScrollBarHorizontal.TabIndex = 4;
 			this.ScrollBarHorizontal.Text = "scrollBar1";
 			this.ScrollBarHorizontal.ThumbLength = 28;
@@ -70,15 +67,12 @@
 			// ScrollBarVertical
 			// 
 			this.ScrollBarVertical.BarLength = 260;
-			this.ScrollBarVertical.LargeChange = 20;
 			this.ScrollBarVertical.Location = new System.Drawing.Point(315, 3);
 			this.ScrollBarVertical.Maximum = 100;
 			this.ScrollBarVertical.Minimum = 0;
-			this.ScrollBarVertical.MouseWheelBarPartitions = 20;
 			this.ScrollBarVertical.Name = "ScrollBarVertical";
-			this.ScrollBarVertical.Orientation = MyLibrary.ScrollBarOrientation.Vertical;
+			this.ScrollBarVertical.Orientation = MyLibrary.HVOrientation.Vertical;
 			this.ScrollBarVertical.Size = new System.Drawing.Size(16, 260);
-			this.ScrollBarVertical.SmallChange = 10;
 			this.ScrollBarVertical.TabIndex = 3;
 			this.ScrollBarVertical.Text = "scrollBar1";
 			this.ScrollBarVertical.ThumbLength = 60;

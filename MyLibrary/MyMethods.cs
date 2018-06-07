@@ -132,14 +132,22 @@ namespace MyLibrary
 
 		public static Color Interpolate(Color StartColor, Color EndColor, float Ratio)
 		{
-			int A = (int)Interpolate(StartColor.A, EndColor.A, Ratio);
-			int R = (int)Interpolate(StartColor.R, EndColor.R, Ratio);
-			int G = (int)Interpolate(StartColor.G, EndColor.G, Ratio);
-			int B = (int)Interpolate(StartColor.B, EndColor.B, Ratio);
+      int A = (int)Interpolate(StartColor.A, EndColor.A, Ratio);
+      int R = (int)Interpolate(StartColor.R, EndColor.R, Ratio);
+      int G = (int)Interpolate(StartColor.G, EndColor.G, Ratio);
+      int B = (int)Interpolate(StartColor.B, EndColor.B, Ratio);
 			return Color.FromArgb(A, R, G, B);
 		}
 
-		public static int Clamp(float value, int Max, int Min)
+    public static Color WriteOut(Color color, int value)
+    {
+      int R = Clamp(color.R + value, 255, 0);
+      int G = Clamp(color.G + value, 255, 0);
+      int B = Clamp(color.B + value, 255, 0);
+      return Color.FromArgb(color.A, R, G, B);
+    }
+
+    public static int Clamp(float value, int Max, int Min)
 		{
 			if (Min > Max)
 				Swap(ref Max, ref Min);
@@ -172,6 +180,18 @@ namespace MyLibrary
 				Swap(ref Max, ref Min);
 			return (value <= Max && value >= Min) ? true : false;
 		}
+
+    public static bool IsIn(float value, int Max, int Min, bool excludeBoundary)
+    {
+      if (!excludeBoundary)
+        return IsIn(value, Max, Min);
+      else
+      {
+        if (Min > Max)
+          Swap(ref Max, ref Min);
+        return (value < Max && value > Min) ? true : false;
+      }
+    }
 
 		public static double LogBase(double Base, double num)
 		{

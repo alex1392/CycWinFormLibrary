@@ -9,6 +9,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using MyLibrary;
+using static MyLibrary.MyMethods;
 
 namespace MyLibrary.Controls
 {
@@ -175,16 +176,10 @@ namespace MyLibrary.Controls
 				ScrollBarHorizontal.Maximum = OriginImage.Width - EffectivePictureBoxWidth;
 				ScrollBarHorizontal.ThumbLength = ScrollBarHorizontal.Width * EffectivePictureBoxWidth / OriginImage.Width; //一定要比Value先改，否則邊界值會出錯
 				ScrollBarHorizontal.Value = ImageBoxPos.X;
-				ScrollBarHorizontal.SmallChange = (int)(ScrollBarHorizontal.Maximum * ScrollBarHorizontal.ThumbLength / ScrollBarHorizontal.BarLength / 10f);
-				ScrollBarHorizontal.LargeChange = (int)(ScrollBarHorizontal.Maximum * ScrollBarHorizontal.ThumbLength / ScrollBarHorizontal.BarLength / 5f);
-				ScrollBarHorizontal.MouseWheelBarPartitions = (int)(10 * ScrollBarHorizontal.BarLength / (float)ScrollBarHorizontal.ThumbLength);
 
 				ScrollBarVertical.Maximum = OriginImage.Height - EffectivePictureBoxHeight;
 				ScrollBarVertical.ThumbLength = ScrollBarVertical.Height * EffectivePictureBoxHeight / OriginImage.Height;
 				ScrollBarVertical.Value = ImageBoxPos.Y;
-				ScrollBarVertical.SmallChange = (int)(ScrollBarVertical.Maximum * ScrollBarVertical.ThumbLength / ScrollBarVertical.BarLength / 10f);
-				ScrollBarVertical.LargeChange = (int)(ScrollBarVertical.Maximum * ScrollBarVertical.ThumbLength / ScrollBarVertical.BarLength / 5f);
-				ScrollBarVertical.MouseWheelBarPartitions = (int)(10 * ScrollBarVertical.BarLength / (float)ScrollBarVertical.ThumbLength);
 
 				ScrollBarVertical.Enabled = IsImageHeightExceed ? true : false;
 				ScrollBarHorizontal.Enabled = IsImageWidthExceed ? true : false;
@@ -291,6 +286,8 @@ namespace MyLibrary.Controls
 		}
 		private void ImageViewer_Resize(object sender, EventArgs e)
 		{
+      Size = new Size(Clamp(Size.Width, int.MaxValue, 20), Clamp(Size.Height, int.MaxValue, 20));
+
 			UpdateLayout();
 			DisplayImage = UpdateDisplayImage(OriginImage);
 			UpdateScrollBar();
