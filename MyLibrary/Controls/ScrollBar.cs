@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Text;
 using System.Windows.Forms;
 using static MyLibrary.MyMethods;
@@ -271,6 +272,7 @@ namespace MyLibrary.Controls
       }
 
       e.Graphics.Clear(backColor);
+      e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
       DrawScrollBar(e.Graphics, backColor, thumbColor, barColor);
     }
 

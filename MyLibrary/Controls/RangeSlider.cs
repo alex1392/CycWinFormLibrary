@@ -170,6 +170,7 @@ namespace MyLibrary.Controls
       }
 
       e.Graphics.Clear(backColor);
+      e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
       DrawRangeSlider(e.Graphics);
 
       if (false && IsFocus)
@@ -181,7 +182,7 @@ namespace MyLibrary.Controls
     private int ClientThick => (orientation == HVOrientation.Horizontal) ? 
       Height : Width;
     private int ThumbRadius => (int)(ClientThick * 0.4);
-    private int ThumbEdgeWidth => ThumbRadius / 3;
+    private int ThumbEdgeWidth => (int)(ClientThick * 0.05);
     private int BarPosY => ClientThick / 2;
     private int BarThick => (int)(ThumbRadius * 1.2f);
     private float FontSize => ThumbRadius * 0.7f;
@@ -203,7 +204,7 @@ namespace MyLibrary.Controls
     private void DrawRangeSlider(Graphics g)
     {     
       Point BarPoint1, BarPoint2, RangePoint1, RangePoint2;
-      Rectangle ThumbMinRect, ThumbMaxRect;
+      Rectangle ThumbMinRect, ThumbMaxRect, ThumbMinShadowRect, ThumbMaxShadowRect;
       if (Orientation == HVOrientation.Horizontal)
       {
         BarPoint1 = new Point(BarPosMin, BarPosY);
@@ -222,6 +223,8 @@ namespace MyLibrary.Controls
         ThumbMinRect = new Rectangle(BarPosY - ThumbRadius, RangeMinPos - ThumbRadius, ThumbRadius * 2, ThumbRadius * 2);
         ThumbMaxRect = new Rectangle(BarPosY - ThumbRadius, RangeMaxPos - ThumbRadius, ThumbRadius * 2, ThumbRadius * 2);
       }
+      ThumbMinShadowRect = new Rectangle(ThumbMinRect.X + ThumbEdgeWidth / 2, ThumbMinRect.Y + ThumbEdgeWidth / 2, ThumbRadius * 2, ThumbRadius * 2);
+      ThumbMaxShadowRect = new Rectangle(ThumbMaxRect.X + ThumbEdgeWidth / 2, ThumbMaxRect.Y + ThumbEdgeWidth / 2, ThumbRadius * 2, ThumbRadius * 2);
 
       using (Pen barPen = new Pen(barColor) { StartCap = LineCap.Round, EndCap = LineCap.Round, Width = BarThick })
       {
@@ -235,9 +238,9 @@ namespace MyLibrary.Controls
       {
         using (SolidBrush thumbBrushInner = new SolidBrush(Color))
         {
-          g.DrawEllipse(thumbPen, ThumbMinRect);
+          DrawRoundShadow(g, ThumbMinShadowRect, ThumbEdgeWidth);
           g.FillEllipse(thumbBrushInner, ThumbMinRect);
-          g.DrawEllipse(thumbPen, ThumbMaxRect);
+          DrawRoundShadow(g, ThumbMaxShadowRect, ThumbEdgeWidth);
           g.FillEllipse(thumbBrushInner, ThumbMaxRect);
         }
       }

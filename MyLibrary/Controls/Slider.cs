@@ -157,7 +157,8 @@ namespace MyLibrary.Controls
 			}
 
 			e.Graphics.Clear(backColor);
-			DrawSlider(e.Graphics);
+      e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+      DrawSlider(e.Graphics);
 
 			if (false && IsFocus)
 				ControlPaint.DrawFocusRectangle(e.Graphics, ClientRectangle);
@@ -315,7 +316,7 @@ namespace MyLibrary.Controls
     }
 
     private Timer MoveTimer;
-    private float MoveRatio; // 0~1
+    private float MoveRatio; //0~1
     private int StartValue;
     private int EndValue;
     private void MoveTimer_Tick(object sender, EventArgs e)
