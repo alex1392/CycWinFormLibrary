@@ -13,6 +13,7 @@ namespace MyLibrary.Methods
 {
   public class Drawing
   {
+    #region Images
     public static Bitmap ResizeImage(Image image, int width, int height)
     {
       var destRect = new Rectangle(0, 0, width, height);
@@ -45,7 +46,9 @@ namespace MyLibrary.Methods
         graphics.DrawImage(image, -rect.X, -rect.Y);
       return bitmap;
     }
+    #endregion
 
+    #region Colors
     public static Color Interpolate(Color StartColor, Color EndColor, float Ratio)
     {
       int A = (int)Math.Interpolate(StartColor.A, EndColor.A, Ratio);
@@ -62,6 +65,9 @@ namespace MyLibrary.Methods
       int B = Clamp(color.B + value, 255, 0);
       return Color.FromArgb(color.A, R, G, B);
     }
+    #endregion
+
+    #region Shapes
 
     public static void DrawRoundRectangle(Graphics g, Pen pen, Rectangle rect, int cornerRadius)
     {
@@ -94,22 +100,74 @@ namespace MyLibrary.Methods
       return roundedRect;
     }
 
-    public static void DrawRoundShadow(Graphics g, Rectangle rect, int width)
+    public static Point[] ResizePolygon(Point[] inputPoints, float ratio)
     {
-      g.SmoothingMode = SmoothingMode.AntiAlias;
-      Color color = Color.FromArgb(0, 0, 0, 0);
-      int penWidth = 3;
-      using (Pen pen = new Pen(color, penWidth))
+      PointF centroid = GetCentroid(inputPoints);
+      Point[] OutputPoints = new Point[inputPoints.Length];
+      PointF vector;
+      double normal;
+      for (int i = 0; i < inputPoints.Length; i++)
       {
-        for (int i = -penWidth; i < width; i++)
-        {
-          pen.Color = Color.FromArgb((50 / width) * (width - i), color);
-          g.DrawEllipse(pen, new Rectangle(rect.X - i, rect.Y - i, rect.Width + 2 * i, rect.Height + 2 * i));
-        }
+        vector = new PointF(inputPoints[i].X - centroid.X,
+                            inputPoints[i].Y - centroid.Y);
+        normal = GetNormal(vector);
+        vector.X = (float)(vector.X / normal);
+        vector.Y = (float)(vector.Y / normal);
+
+        OutputPoints[i].X = (int)(centroid.X + vector.X * ratio);
+        OutputPoints[i].Y = (int)(centroid.Y + vector.Y * ratio);
       }
+      return OutputPoints;
+    }
+
+    public static PointF[] ResizePolygon(PointF[] inputPoints, float width)
+    {
+      PointF centroid = GetCentroid(inputPoints);
+      PointF[] OutputPoints = new PointF[inputPoints.Length];
+      PointF vector;
+      double normal;
+      for (int i = 0; i < inputPoints.Length; i++)
+      {
+        vector = new PointF(inputPoints[i].X - centroid.X,
+                            inputPoints[i].Y - centroid.Y);
+        normal = GetNormal(vector);
+        vector.X = (float)(vector.X / normal);
+        vector.Y = (float)(vector.Y / normal);
+
+        OutputPoints[i].X = inputPoints[i].X + vector.X * width;
+        OutputPoints[i].Y = inputPoints[i].Y + vector.Y * width;
+      }
+      return OutputPoints;
+    }
+    #endregion
+
+    #region Geometry
+    public static Rectangle ShiftRect(Rectangle rect, Point vector)
+    {
+      return new Rectangle(rect.X + vector.X, rect.Y + vector.Y, rect.Width, rect.Height);
+    }
+
+    public static PointF[] ShiftPolygon(PointF[] points, Point vector)
+    {
+      for (int i = 0; i < points.Length; i++)
+      {
+        points[i].X += vector.X;
+        points[i].Y += vector.Y;
+      }
+      return points;
+    }
+
+    public static double GetNormal(PointF vector)
+    {
+      return Sqrt(Pow(vector.X, 2) + Pow(vector.Y, 2));
     }
 
     public static PointF GetCentroid(Point[] points)
+    {
+      return GetCentroid(Point2PointF(points));
+    }
+
+    public static PointF GetCentroid(PointF[] points)
     {
       PointF centroid = new PointF(0, 0);
       foreach (PointF point in points)
@@ -122,26 +180,58 @@ namespace MyLibrary.Methods
       return centroid;
     }
 
-    public static double GetNormal(PointF vector)
+    public static PointF Point2PointF(Point point)
     {
-      return Sqrt(Pow(vector.X, 2) + Pow(vector.Y, 2));
+      return new PointF(point.X, point.Y);
     }
 
-    public static Point[] ZoomPolygon(Point[] inputPoints, float ratio)
+    public static PointF[] Point2PointF(Point[] points)
     {
-      PointF centroid = GetCentroid(inputPoints);
-      Point[] OutputPoints = new Point[inputPoints.Length];
-      PointF vector;
-      for (int i = 0; i < inputPoints.Length; i++)
+      PointF[] output = new PointF[points.Length];
+      for (int i = 0; i < points.Length; i++)
       {
-        vector = new PointF(inputPoints[i].X - centroid.X,
-                            inputPoints[i].Y - centroid.Y);
-
-        OutputPoints[i].X = (int)(centroid.X + vector.X * ratio);
-        OutputPoints[i].Y = (int)(centroid.Y + vector.Y * ratio);
+        output[i].X = points[i].X;
+        output[i].Y = points[i].Y;
       }
-      return OutputPoints;
+      return output;
+    }
+    #endregion
+
+    #region Shadows
+    public static void DrawRoundShadow(Graphics g, Rectangle rect, int width)
+    {
+      g.SmoothingMode = SmoothingMode.AntiAlias;
+      Color color = Color.FromArgb(0, 0, 0, 0);
+      int penWidth = 3;
+      Point shift = new Point(width / 2, width / 2);
+      rect = ShiftRect(rect, shift);
+      using (Pen pen = new Pen(color, penWidth))
+      {
+        for (int i = -width; i < width; i++)
+        {
+          pen.Color = Color.FromArgb((byte)((50 / width) * (width - i)), color);
+          g.DrawEllipse(pen, new Rectangle(rect.X - i, rect.Y - i, rect.Width + 2 * i, rect.Height + 2 * i));
+        }
+      }
     }
 
+    public static void DrawPolygonShadow(Graphics g, Point[] points, int width)
+    {
+      g.SmoothingMode = SmoothingMode.AntiAlias;
+      Color color = Color.FromArgb(0, 0, 0, 0);
+      int penWidth = 3;
+      PointF[] pointFs = Point2PointF(points);
+      Point shift = new Point(width / 3, width / 3);
+      pointFs = ShiftPolygon(pointFs, shift);
+      using (Pen pen = new Pen(color, penWidth))
+      {
+        for (int i = -width; i < width; i++)
+        {
+          pen.Color = Color.FromArgb((byte)((50 / width) * (width - i)), color);
+          g.DrawPolygon(pen, ResizePolygon(pointFs, i));
+        }
+      }
+    }
+    #endregion
   }
 }

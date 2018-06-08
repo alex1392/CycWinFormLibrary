@@ -184,7 +184,7 @@ namespace MyLibrary.Controls
       }
     }
     private int ThumbEdgeWidth => 
-      Clamp(OrientHeight * (2f / 20f), int.MaxValue, 1);
+      Clamp(OrientHeight * (1.5f / 20f), int.MaxValue, 1);
     private int ThumbHeight => 
       Clamp(OrientHeight * (10f / 20f), int.MaxValue, 6);
     private int ThumbWidth => ThumbHeight;
@@ -299,7 +299,8 @@ namespace MyLibrary.Controls
 
 			g.DrawLine(barLPen, barLPtL, barLPtR);
 			g.DrawLine(barRPen, barRPtL, barRPtR);
-			g.DrawPolygon(thumbPen, thumbPts);
+      //g.DrawPolygon(thumbPen, thumbPts);
+      DrawPolygonShadow(g, thumbPts, ThumbEdgeWidth);
 			g.FillPolygon(thumbBrush, thumbPts);
 			txtRect = new Rectangle(thumbPts[0].X, thumbPts[0].Y, ThumbWidth, ThumbHeight);
 			TextRenderer.DrawText(g, Value.ToString(), font, txtRect, textColor, Color.Transparent, GetTextFormatFlags(ContentAlignment.MiddleCenter));

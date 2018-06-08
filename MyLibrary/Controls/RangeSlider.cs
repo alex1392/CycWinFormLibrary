@@ -249,7 +249,7 @@ namespace MyLibrary.Controls
     private void DrawRangeSlider(Graphics g)
     {     
       Point BarPoint1, BarPoint2, RangePoint1, RangePoint2;
-      Rectangle ThumbMinRect, ThumbMaxRect, ThumbMinShadowRect, ThumbMaxShadowRect;
+      Rectangle ThumbMinRect, ThumbMaxRect;
       if (Orientation == HVOrientation.Horizontal)
       {
         BarPoint1 = new Point(BarPosMin, BarPosY);
@@ -268,8 +268,6 @@ namespace MyLibrary.Controls
         ThumbMinRect = new Rectangle(BarPosY - ThumbRadius, RangeMinPos - ThumbRadius, ThumbRadius * 2, ThumbRadius * 2);
         ThumbMaxRect = new Rectangle(BarPosY - ThumbRadius, RangeMaxPos - ThumbRadius, ThumbRadius * 2, ThumbRadius * 2);
       }
-      ThumbMinShadowRect = new Rectangle(ThumbMinRect.X + ThumbEdgeWidth / 2, ThumbMinRect.Y + ThumbEdgeWidth / 2, ThumbRadius * 2, ThumbRadius * 2);
-      ThumbMaxShadowRect = new Rectangle(ThumbMaxRect.X + ThumbEdgeWidth / 2, ThumbMaxRect.Y + ThumbEdgeWidth / 2, ThumbRadius * 2, ThumbRadius * 2);
 
       using (Pen barPen = new Pen(barColor) { StartCap = LineCap.Round, EndCap = LineCap.Round, Width = BarThick })
       {
@@ -283,9 +281,9 @@ namespace MyLibrary.Controls
       {
         using (SolidBrush thumbBrushInner = new SolidBrush(thumbColor))
         {
-          DrawRoundShadow(g, ThumbMinShadowRect, ThumbEdgeWidth);
+          DrawRoundShadow(g, ThumbMinRect, ThumbEdgeWidth);
           g.FillEllipse(thumbBrushInner, ThumbMinRect);
-          DrawRoundShadow(g, ThumbMaxShadowRect, ThumbEdgeWidth);
+          DrawRoundShadow(g, ThumbMaxRect, ThumbEdgeWidth);
           g.FillEllipse(thumbBrushInner, ThumbMaxRect);
         }
       }
