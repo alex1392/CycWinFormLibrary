@@ -306,7 +306,7 @@ namespace MyLibrary.Controls
       {
         HoverTimer.Stop();
       }
-      Refresh();
+      Invalidate();
     }
 
     private Timer MoveTimer;
@@ -338,7 +338,9 @@ namespace MyLibrary.Controls
         default:
           break;
       }
-      Refresh();
+      OnValueChanged();
+      OnScroll();
+      Invalidate();
     }
     #endregion
 
@@ -526,7 +528,7 @@ namespace MyLibrary.Controls
       Mouse2Value(e);
 
       //OnScroll();
-      Refresh();
+      Invalidate();
     }
     protected override void OnMouseUp(MouseEventArgs e)
     {

@@ -299,7 +299,6 @@ namespace MyLibrary.Controls
 
 			g.DrawLine(barLPen, barLPtL, barLPtR);
 			g.DrawLine(barRPen, barRPtL, barRPtR);
-      //g.DrawPolygon(thumbPen, thumbPts);
       DrawPolygonShadow(g, thumbPts, ThumbEdgeWidth);
 			g.FillPolygon(thumbBrush, thumbPts);
 			txtRect = new Rectangle(thumbPts[0].X, thumbPts[0].Y, ThumbWidth, ThumbHeight);
@@ -319,7 +318,7 @@ namespace MyLibrary.Controls
       {
         HoverTimer.Stop();
       }
-      Refresh();
+      Invalidate();
     }
 
     private Timer MoveTimer;
@@ -334,7 +333,9 @@ namespace MyLibrary.Controls
         MoveTimer.Stop();
       }
       Value = (int)Interpolate(StartValue, EndValue, MoveRatio);
-      Refresh();
+      OnValueChanged();
+      OnScroll(Value);
+      Invalidate();
     }
     #endregion
 
@@ -463,7 +464,7 @@ namespace MyLibrary.Controls
 
       OnScroll(Value);
 			HoverTimer.Stop();
-			Refresh();
+			Invalidate();
 		}
 		protected override void OnMouseUp(MouseEventArgs e)
 		{

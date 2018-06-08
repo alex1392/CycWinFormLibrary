@@ -75,7 +75,7 @@ namespace MyLibrary.Controls
           scrollOrientation = ScrollOrientation.HorizontalScroll;
 
         this.Size = new Size(Height, Width);
-        Refresh();
+        Invalidate();
       }
     }
 
@@ -209,7 +209,7 @@ namespace MyLibrary.Controls
                ControlStyles.UserPaint, true);
 
       SetProperties();
-      Refresh();
+      Invalidate();
     }
     public ScrollBar(HVOrientation orientation)
         : this()
@@ -330,7 +330,7 @@ namespace MyLibrary.Controls
       {
         HoverTimer.Stop();
       }
-      Refresh();
+      Invalidate();
     }
 
     private Timer MoveTimer;
@@ -345,7 +345,8 @@ namespace MyLibrary.Controls
         MoveTimer.Stop();
       }
       Value = (int)Interpolate(StartValue, EndValue, MoveRatio);
-      Refresh();
+      OnScroll(ScrollEventType.ThumbTrack, -1, _Value, scrollOrientation);
+      Invalidate();
     }
     #endregion
 
@@ -426,7 +427,7 @@ namespace MyLibrary.Controls
           MoveTimer.Start();
         }
       }
-      Refresh();
+      Invalidate();
     }
     protected override void OnMouseUp(MouseEventArgs e)
     {
@@ -536,7 +537,7 @@ namespace MyLibrary.Controls
       ThumbFrontPosition = Clamp(ThumbFrontPosition, ThumbFrontPositionMax, ThumbFrontPositionMin);
 
       ThumbFrontPosition = ThumbFrontPosition; // 更新Value
-                                               //Refresh(); ResizeRedraw = true控制項會自動重繪
+      //ResizeRedraw = true控制項會自動重繪
     }
 
     protected override void OnEnabledChanged(EventArgs e)
