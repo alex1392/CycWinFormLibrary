@@ -3,7 +3,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.ComponentModel;
 using System.Windows.Forms;
-using static MyLibrary.MyMethods;
+using static MyLibrary.Methods.Math;
+using static MyLibrary.Methods.Drawing;
+using static MyLibrary.Methods.System;
+using MyLibrary.Classes;
 
 namespace MyLibrary.Controls
 {
@@ -223,11 +226,14 @@ namespace MyLibrary.Controls
     private int BarPosY => ClientThick / 2;
     private int BarThick => (int)(ThumbRadius * 1.2f);
     private float FontSize => ThumbRadius * 0.7f;
-    private int OffsetMaxMinPos => (!Reverse) ? ThumbRadius * 2 : -ThumbRadius * 2;
+    private int OffsetMaxMinPos => (!Reverse) ? 
+      ThumbRadius * 2 : -ThumbRadius * 2;
     private int OffsetMaxMinValue => (int)(OffsetMaxMinPos * ValuePosRatio);
     private int OffsetBoundaryPos => ThumbRadius + ThumbEdgeWidth;
-    private int BarPosMax => (!Reverse) ? ClientLength - OffsetBoundaryPos : OffsetBoundaryPos;
-    private int BarPosMin => (!Reverse) ? OffsetBoundaryPos : ClientLength - OffsetBoundaryPos;
+    private int BarPosMax => (!Reverse) ? 
+      ClientLength - OffsetBoundaryPos : OffsetBoundaryPos;
+    private int BarPosMin => (!Reverse) ? 
+      OffsetBoundaryPos : ClientLength - OffsetBoundaryPos;
     private int ValueLength => BarMax - BarMin;
     private int BarLength => BarPosMax - BarPosMin;
     private int RangeMaxPos => Value2Pos(RangeMax);
@@ -236,8 +242,10 @@ namespace MyLibrary.Controls
     private int RangePosLength => RangeMaxPos - RangeMinPos;
     private float ValuePosRatio => (float)ValueLength / BarLength;
     private float PosValueRatio => (float)BarLength / ValueLength;
-    private int Pos2Value(int pos) => LinConvert(pos, BarPosMax, BarPosMin, BarMax, BarMin);
-    private int Value2Pos(int value) => LinConvert(value, BarMax, BarMin, BarPosMax, BarPosMin);
+    private int Pos2Value(int pos) => 
+      LinConvert(pos, BarPosMax, BarPosMin, BarMax, BarMin);
+    private int Value2Pos(int value) => 
+      LinConvert(value, BarMax, BarMin, BarPosMax, BarPosMin);
     private void DrawRangeSlider(Graphics g)
     {     
       Point BarPoint1, BarPoint2, RangePoint1, RangePoint2;
@@ -283,8 +291,8 @@ namespace MyLibrary.Controls
       }
 
       Font font = new Font("Segoe UI", FontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-      TextRenderer.DrawText(g, " " + RangeMin.ToString(), font, ThumbMinRect, textColor, System.Drawing.Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
-      TextRenderer.DrawText(g, " " + RangeMax.ToString(), font, ThumbMaxRect, textColor, System.Drawing.Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
+      TextRenderer.DrawText(g, " " + RangeMin.ToString(), font, ThumbMinRect, textColor, System.Drawing.Color.Transparent, GetTextFormatFlags(ContentAlignment.MiddleCenter));
+      TextRenderer.DrawText(g, " " + RangeMax.ToString(), font, ThumbMaxRect, textColor, System.Drawing.Color.Transparent, GetTextFormatFlags(ContentAlignment.MiddleCenter));
     }
 
     #endregion

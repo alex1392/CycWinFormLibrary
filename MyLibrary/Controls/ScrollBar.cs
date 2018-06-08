@@ -5,7 +5,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text;
 using System.Windows.Forms;
-using static MyLibrary.MyMethods;
+using static MyLibrary.Methods.Math;
+using static MyLibrary.Methods.Drawing;
+using static MyLibrary.Methods.System;
+using MyLibrary.Classes;
 
 namespace MyLibrary.Controls
 {

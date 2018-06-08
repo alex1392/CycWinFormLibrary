@@ -8,8 +8,10 @@ using System.Windows.Forms;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Diagnostics;
-using MyLibrary;
-using static MyLibrary.MyMethods;
+using static MyLibrary.Methods.Math;
+using static MyLibrary.Methods.Drawing;
+using static MyLibrary.Methods.System;
+using MyLibrary.Classes;
 
 namespace MyLibrary.Controls
 {
@@ -74,8 +76,8 @@ namespace MyLibrary.Controls
 			{
 				if (OriginImage == null)
 					return;
-				_ImageBoxPos.X = (IsImageWidthExceed) ? MyMethods.Clamp(value.X, OriginImage.Width - EffectivePictureBoxWidth, 0) : 0;
-				_ImageBoxPos.Y = (IsImageHeightExceed) ? MyMethods.Clamp(value.Y, OriginImage.Height - EffectivePictureBoxHeight, 0) : 0;
+				_ImageBoxPos.X = (IsImageWidthExceed) ? Clamp(value.X, OriginImage.Width - EffectivePictureBoxWidth, 0) : 0;
+				_ImageBoxPos.Y = (IsImageHeightExceed) ? Clamp(value.Y, OriginImage.Height - EffectivePictureBoxHeight, 0) : 0;
 			}
 		}
 		private Point _ImageBoxPos = new Point(0, 0);

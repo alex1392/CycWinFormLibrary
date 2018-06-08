@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace MyLibrary
+namespace MyLibrary.Classes
 {
   public sealed class ShadeColors
   {
@@ -45,17 +44,17 @@ namespace MyLibrary
 
   public enum EMyColors
   {
-    Blue,   
+    Blue,
     Green,
     Red,
     Black,
     White,
-    Silver, 
+    Silver,
     Lime,
-    Teal, 
-    Orange, 
+    Teal,
+    Orange,
     Brown,
-    Pink, 
+    Pink,
     Magenta,
     Purple,
     Yellow
@@ -77,57 +76,6 @@ namespace MyLibrary
     public static Color Magenta = Color.FromArgb(255, 0, 148);
     public static Color Purple = Color.FromArgb(124, 65, 153);
     public static Color Yellow = Color.FromArgb(255, 196, 37);
-  }
-
-  public enum HVOrientation
-  {
-    Horizontal,
-    Vertical,
-  }
-
-  public enum UDLROrientation
-  { 
-    Down,
-    Right,
-    Up,
-    Left
-  }
-
-  public class BackgroundArgs
-  {
-    public object sender;
-    public EventArgs e;
-    public object[] parameters;
-    public object[] results;
-
-    public BackgroundArgs(object sender)
-    {
-      this.sender = sender;
-    }
-    public BackgroundArgs(EventArgs e, object[] parameters)
-    {
-      this.e = e;
-      this.parameters = parameters;
-    }
-    public BackgroundArgs(object sender, EventArgs e)
-    {
-      this.sender = sender;
-      this.e = e;
-    }
-    public BackgroundArgs(object sender, EventArgs e, object[] parameters)
-    {
-      this.sender = sender;
-      this.e = e;
-      this.parameters = parameters;
-    }
-  }
-
-  public class ControlAnchor
-  {
-    public int Top;
-    public int Left;
-    public int Width;
-    public int Height;
   }
 
   public class PixelImage : ICloneable
@@ -228,5 +176,19 @@ namespace MyLibrary
 
     }
     #endregion
+  }
+
+  public enum HVOrientation
+  {
+    Horizontal,
+    Vertical,
+  }
+
+  public enum UDLROrientation
+  {
+    Down,
+    Right,
+    Up,
+    Left
   }
 }

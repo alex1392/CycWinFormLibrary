@@ -3,7 +3,10 @@ using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
-using static MyLibrary.MyMethods;
+using static MyLibrary.Methods.Math;
+using static MyLibrary.Methods.Drawing;
+using static MyLibrary.Methods.System;
+using MyLibrary.Classes;
 
 namespace MyLibrary.Controls
 {
@@ -299,7 +302,7 @@ namespace MyLibrary.Controls
 			g.DrawPolygon(thumbPen, thumbPts);
 			g.FillPolygon(thumbBrush, thumbPts);
 			txtRect = new Rectangle(thumbPts[0].X, thumbPts[0].Y, ThumbWidth, ThumbHeight);
-			TextRenderer.DrawText(g, Value.ToString(), font, txtRect, textColor, Color.Transparent, MyMethods.GetTextFormatFlags(ContentAlignment.MiddleCenter));
+			TextRenderer.DrawText(g, Value.ToString(), font, txtRect, textColor, Color.Transparent, GetTextFormatFlags(ContentAlignment.MiddleCenter));
 		}
 
     #endregion

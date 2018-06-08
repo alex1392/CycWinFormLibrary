@@ -1,4 +1,6 @@
-﻿namespace MyLibrary.Controls
+﻿using MyLibrary.Classes;
+
+namespace MyLibrary.Controls
 {
 	partial class ImageViewer
 	{
@@ -55,7 +57,7 @@
 			this.ScrollBarHorizontal.Maximum = 100;
 			this.ScrollBarHorizontal.Minimum = 0;
 			this.ScrollBarHorizontal.Name = "ScrollBarHorizontal";
-			this.ScrollBarHorizontal.Orientation = MyLibrary.HVOrientation.Horizontal;
+			this.ScrollBarHorizontal.Orientation = HVOrientation.Horizontal;
 			this.ScrollBarHorizontal.Size = new System.Drawing.Size(306, 18);
 			this.ScrollBarHorizontal.TabIndex = 4;
 			this.ScrollBarHorizontal.Text = "scrollBar1";
@@ -71,7 +73,7 @@
 			this.ScrollBarVertical.Maximum = 100;
 			this.ScrollBarVertical.Minimum = 0;
 			this.ScrollBarVertical.Name = "ScrollBarVertical";
-			this.ScrollBarVertical.Orientation = MyLibrary.HVOrientation.Vertical;
+			this.ScrollBarVertical.Orientation = HVOrientation.Vertical;
 			this.ScrollBarVertical.Size = new System.Drawing.Size(16, 260);
 			this.ScrollBarVertical.TabIndex = 3;
 			this.ScrollBarVertical.Text = "scrollBar1";
