@@ -178,7 +178,7 @@ namespace MyLibrary.Controls
     private int ThumbEndPosition => ThumbFrontPosition + ThumbLength;
     private int ThumbEndPositionMax => orientation == HVOrientation.Vertical ?
         ClientRectangle.Bottom : ClientRectangle.Right;
-    private int ThumbFrontPositionMax => ThumbEndPositionMax - ThumbLength;
+    private int ThumbFrontPositionMax => ThumbEndPositionMax - ThumbLength - 1;
     private int ThumbFrontPositionMin = 0;
     private int ThumbPositionLength => ThumbFrontPositionMax - ThumbFrontPositionMin;
     private Rectangle ThumbRectangle => orientation == HVOrientation.Vertical ?
@@ -237,7 +237,7 @@ namespace MyLibrary.Controls
 
       MoveTimer = new Timer();
       MoveTimer.Tick += MoveTimer_Tick;
-      MoveTimer.Interval = 5;
+      MoveTimer.Interval = 10;
     }
     #endregion
 
@@ -281,8 +281,8 @@ namespace MyLibrary.Controls
 
     private Point BarPoint1 => new Point(CapRadius, CapRadius);
     private Point BarPoint2 => orientation == HVOrientation.Vertical ?
-      new Point(CapRadius, ClientRectangle.Bottom - CapRadius) :
-      new Point(ClientRectangle.Right - CapRadius, CapRadius);
+      new Point(CapRadius, ClientRectangle.Bottom - CapRadius - 1) :
+      new Point(ClientRectangle.Right - CapRadius - 1, CapRadius);
     private Point ThumbPoint1 => orientation == HVOrientation.Vertical ?
       new Point(CapRadius, ThumbFrontPosition + CapRadius) :
       new Point(ThumbFrontPosition + CapRadius, CapRadius);
@@ -339,7 +339,7 @@ namespace MyLibrary.Controls
     private int EndValue;
     private void MoveTimer_Tick(object sender, EventArgs e)
     {
-      MoveRatio += 0.2f;
+      MoveRatio += 0.05f;
       if (!IsIn(MoveRatio, 1, 0, true))
       {
         MoveTimer.Stop();

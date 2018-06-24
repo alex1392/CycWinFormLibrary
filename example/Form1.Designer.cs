@@ -1,16 +1,16 @@
-﻿namespace example
+﻿namespace Example
 {
   partial class Form1
   {
     /// <summary>
-    /// Required designer variable.
+    /// 設計工具所需的變數。
     /// </summary>
     private System.ComponentModel.IContainer components = null;
 
     /// <summary>
-    /// Clean up any resources being used.
+    /// 清除任何使用中的資源。
     /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+    /// <param name="disposing">如果應該處置 Managed 資源則為 true，否則為 false。</param>
     protected override void Dispose(bool disposing)
     {
       if (disposing && (components != null))
@@ -20,52 +20,61 @@
       base.Dispose(disposing);
     }
 
-    #region Windows Form Designer generated code
+    #region Windows Form 設計工具產生的程式碼
 
     /// <summary>
-    /// Required method for Designer support - do not modify
-    /// the contents of this method with the code editor.
+    /// 此為設計工具支援所需的方法 - 請勿使用程式碼編輯器修改
+    /// 這個方法的內容。
     /// </summary>
     private void InitializeComponent()
     {
       this.button1 = new System.Windows.Forms.Button();
-      this.textBox1 = new System.Windows.Forms.TextBox();
+      this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+      this.imageViewer1 = new MyLibrary.Controls.ImageViewer();
       this.SuspendLayout();
       // 
       // button1
       // 
-      this.button1.Location = new System.Drawing.Point(79, 35);
+      this.button1.Location = new System.Drawing.Point(299, 661);
       this.button1.Name = "button1";
-      this.button1.Size = new System.Drawing.Size(126, 65);
-      this.button1.TabIndex = 0;
-      this.button1.Text = "Go To Form2";
+      this.button1.Size = new System.Drawing.Size(154, 71);
+      this.button1.TabIndex = 1;
+      this.button1.Text = "Browse";
       this.button1.UseVisualStyleBackColor = true;
       this.button1.Click += new System.EventHandler(this.button1_Click);
       // 
-      // textBox1
+      // openFileDialog1
       // 
-      this.textBox1.Location = new System.Drawing.Point(87, 134);
-      this.textBox1.Name = "textBox1";
-      this.textBox1.Size = new System.Drawing.Size(109, 29);
-      this.textBox1.TabIndex = 1;
+      this.openFileDialog1.FileName = "openFileDialog1";
+      this.openFileDialog1.Filter = "bmp|*.bmp|jpg|*.jpg|png|*.png";
+      // 
+      // imageViewer1
+      // 
+      this.imageViewer1.Image = null;
+      this.imageViewer1.Location = new System.Drawing.Point(12, 12);
+      this.imageViewer1.Name = "imageViewer1";
+      this.imageViewer1.Size = new System.Drawing.Size(754, 637);
+      this.imageViewer1.TabIndex = 0;
       // 
       // Form1
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(278, 244);
-      this.Controls.Add(this.textBox1);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
+      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+      this.ClientSize = new System.Drawing.Size(778, 744);
       this.Controls.Add(this.button1);
+      this.Controls.Add(this.imageViewer1);
+      this.Font = new System.Drawing.Font("微軟正黑體", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
       this.Name = "Form1";
       this.Text = "Form1";
       this.ResumeLayout(false);
-      this.PerformLayout();
 
     }
 
     #endregion
 
+    private MyLibrary.Controls.ImageViewer imageViewer1;
     private System.Windows.Forms.Button button1;
-    private System.Windows.Forms.TextBox textBox1;
+    private System.Windows.Forms.OpenFileDialog openFileDialog1;
   }
 }
+
