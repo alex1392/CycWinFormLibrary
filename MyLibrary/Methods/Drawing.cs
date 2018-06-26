@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using MyLibrary.Classes;
 using static System.Math;
 using static MyLibrary.Methods.Math;
 
@@ -37,6 +39,39 @@ namespace MyLibrary.Methods
       using (Graphics g = Graphics.FromImage(bitmap))
         g.DrawImage(image, -rect.X, -rect.Y);
       return bitmap;
+    }
+
+    public static PixelImage BlackFade(PixelImage image, float ratio)
+    {
+      var outputImage = image.Clone() as PixelImage;
+      byte[] pixel = outputImage.Pixel;
+      int imageByte = outputImage.Byte;
+      int count = pixel.Length;
+      Color c;
+      for (int i = 0; i < count; i += imageByte)
+      {
+        c = Interpolate(Color.Black, Color.FromArgb(pixel[i + 3], pixel[i + 2], pixel[i + 1], pixel[i]), ratio);
+        pixel[i] = c.B;
+        pixel[i + 1] = c.G;
+        pixel[i + 2] = c.R;
+        pixel[i + 3] = c.A;
+      }
+      outputImage.Pixel = pixel; // 一定要設定Pixel才會更新Bitmap!!!!
+      return outputImage;
+    }
+
+    public static PixelImage Fade(PixelImage image, float ratio)
+    {
+      var outputImage = image.Clone() as PixelImage;
+      byte[] pixel = outputImage.Pixel;
+      int imageByte = outputImage.Byte;
+      int count = pixel.Length;
+      for (int i = 0; i < count; i += imageByte)
+      {
+        pixel[i + 3] = (byte)(255 * ratio);
+      }
+      outputImage.Pixel = pixel; // 一定要設定Pixel才會更新Bitmap!!!!
+      return outputImage;
     }
     #endregion
 

@@ -132,12 +132,20 @@ namespace MyLibrary.Classes
 
     public object Clone()
     {
-      return new PixelImage()
+      if (this._Bitmap == null)
       {
-        _Bitmap = (Bitmap)this._Bitmap.Clone(),
-        _Pixel = (byte[])this._Pixel.Clone(),
-        Byte = this.Byte
-      };
+        return new PixelImage();
+      }
+      else
+      {
+        return new PixelImage()
+        {
+          _Bitmap = (Bitmap)this._Bitmap.Clone(),
+          _Pixel = (byte[])this._Pixel.Clone(),
+          Byte = this.Byte
+        };
+
+      }
     } //比new PixelIamge(bitmap)快
     #endregion
 

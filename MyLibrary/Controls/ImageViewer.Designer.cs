@@ -34,6 +34,7 @@ namespace MyLibrary.Controls
       this.ScrollBarHorizontal = new MyLibrary.Controls.ScrollBar();
       this.ScrollBarVertical = new MyLibrary.Controls.ScrollBar();
       this.BackgroundWorker = new System.ComponentModel.BackgroundWorker();
+      this.metroToolTip1 = new MetroFramework.Components.MetroToolTip();
       ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
       this.SuspendLayout();
       // 
@@ -57,7 +58,7 @@ namespace MyLibrary.Controls
       this.ScrollBarHorizontal.Maximum = 100;
       this.ScrollBarHorizontal.Minimum = 0;
       this.ScrollBarHorizontal.Name = "ScrollBarHorizontal";
-      this.ScrollBarHorizontal.Orientation = HVOrientation.Horizontal;
+      this.ScrollBarHorizontal.Orientation = MyLibrary.Classes.HVOrientation.Horizontal;
       this.ScrollBarHorizontal.Size = new System.Drawing.Size(306, 18);
       this.ScrollBarHorizontal.TabIndex = 4;
       this.ScrollBarHorizontal.Text = "scrollBar1";
@@ -73,7 +74,7 @@ namespace MyLibrary.Controls
       this.ScrollBarVertical.Maximum = 100;
       this.ScrollBarVertical.Minimum = 0;
       this.ScrollBarVertical.Name = "ScrollBarVertical";
-      this.ScrollBarVertical.Orientation = HVOrientation.Vertical;
+      this.ScrollBarVertical.Orientation = MyLibrary.Classes.HVOrientation.Vertical;
       this.ScrollBarVertical.Size = new System.Drawing.Size(16, 260);
       this.ScrollBarVertical.TabIndex = 3;
       this.ScrollBarVertical.Text = "scrollBar1";
@@ -88,6 +89,16 @@ namespace MyLibrary.Controls
       this.BackgroundWorker.WorkerSupportsCancellation = true;
       this.BackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundWorker_DoWork);
       this.BackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker_RunWorkerCompleted);
+      // 
+      // metroToolTip1
+      // 
+      this.metroToolTip1.AutoPopDelay = 5000;
+      this.metroToolTip1.InitialDelay = 1000;
+      this.metroToolTip1.MetroFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.metroToolTip1.ReshowDelay = 1000;
+      this.metroToolTip1.Style = MetroFramework.MetroColorStyle.Blue;
+      this.metroToolTip1.StyleManager = null;
+      this.metroToolTip1.Theme = MetroFramework.MetroThemeStyle.Light;
       // 
       // ImageViewer
       // 
@@ -110,5 +121,6 @@ namespace MyLibrary.Controls
     private ScrollBar ScrollBarVertical;
     private ScrollBar ScrollBarHorizontal;
     private System.ComponentModel.BackgroundWorker BackgroundWorker;
+    private MetroFramework.Components.MetroToolTip metroToolTip1;
   }
 }

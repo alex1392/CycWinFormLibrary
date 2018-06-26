@@ -307,5 +307,19 @@ namespace MyLibrary.Controls
       UpdateScrollBar();
       UpdatePictureBox();
     }
+
+    //tooltip
+    [Category("Appearance")]
+    public string MyToolTip
+    {
+      get
+      {
+        return metroToolTip1.GetToolTip(pictureBox);
+      }
+      set
+      {
+        metroToolTip1.SetToolTip(pictureBox, value);
+      }
+    }
   }
 }

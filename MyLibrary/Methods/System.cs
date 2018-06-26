@@ -9,8 +9,23 @@ using System.Windows.Forms;
 
 namespace MyLibrary.Methods
 {
-  public class System
+  public static class System
   {
+    /* 非同步委派更新UI Example:
+     * control.InvokeIfRequired(new Action(() => { "Do Something" }));
+     */
+    public static void InvokeIfRequired(this Control control, Action action)
+    {
+      if (control.InvokeRequired)//在非當前執行緒內 使用委派
+      {
+        control.Invoke(action);
+      }
+      else
+      {
+        action();
+      }
+    }
+
     /*	TimeIt Example:
     *	1. 
     *	Code code = () => { string s = "Your Codes"; };
@@ -22,9 +37,8 @@ namespace MyLibrary.Methods
     public static void TimeIt(Code code)
     {
       Stopwatch sw = new Stopwatch();//引用stopwatch物件
-      sw.Reset();//碼表歸零
-      sw.Start();//碼表開始計時
-                 //-----目標程式-----//
+      sw.Restart();
+      //-----目標程式-----//
       code.Invoke();
       //-----目標程式-----//
       sw.Stop();//碼錶停止
@@ -33,8 +47,8 @@ namespace MyLibrary.Methods
     }
 
     /*	GetAllControls Exmaple:	
-		 *	List<Control> AllControls = GetAllControls(Form); 
-		 */
+     *	List<Control> AllControls = GetAllControls(Form); 
+     */
     public static List<Control> GetAllControls(Form form)
     {
       return GetAllControls(ToList(form.Controls));
