@@ -80,7 +80,7 @@
     <Compile Include="Methods\Drawing.cs" />
     <Compile Include="Methods\Math.cs" />
     <Compile Include="Methods\System.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="ProgramDPI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Controls\ImageViewer.resx">
       <DependentUpon>ImageViewer.cs</DependentUpon>
@@ -116,7 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MetroFramework\MetroFramework\MetroFramework.csproj">
-      <Project>{BB41AC8B-CBED-4387-A7E0-4567EDB3F57F}</Project>
+      <Project>{bb41ac8b-cbed-4387-a7e0-4567edb3f57f}</Project>
       <Name>MetroFramework</Name>
     </ProjectReference>
   </ItemGroup>

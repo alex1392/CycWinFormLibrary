@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace MyLibrary
 {
-	static class Program
+	static class ProgramDPI
 	{
 		///	解決DPI顯示問題 (1) 設定 Form1.AutoScaleMode = DPI
 		///	

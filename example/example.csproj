@@ -79,6 +79,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\MetroFramework\MetroFramework\MetroFramework.csproj">
+      <Project>{bb41ac8b-cbed-4387-a7e0-4567edb3f57f}</Project>
+      <Name>MetroFramework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MyLibrary\MyLibrary.csproj">
       <Project>{AA4B8910-6E55-4F05-8037-0EE24933F1B5}</Project>
       <Name>MyLibrary</Name>

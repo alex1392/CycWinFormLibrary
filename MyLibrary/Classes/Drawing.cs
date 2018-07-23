@@ -78,7 +78,7 @@ namespace MyLibrary.Classes
     public static Color Yellow = Color.FromArgb(255, 196, 37);
   }
 
-  public class PixelImage : ICloneable
+  public class PixelImage: ICloneable
   {
     private Bitmap _Bitmap;
     public Bitmap Bitmap
@@ -106,7 +106,7 @@ namespace MyLibrary.Classes
     public int Width => _Bitmap.Width;
     public int Height => _Bitmap.Height;
     public Size Size => _Bitmap.Size;
-    public static PixelFormat PixelFormat = PixelFormat.Format32bppArgb;
+    public static PixelFormat PixelImageFormat = PixelFormat.Format32bppArgb;
 
     #region Constructors
     public PixelImage()
@@ -116,17 +116,28 @@ namespace MyLibrary.Classes
 
     public PixelImage(Bitmap bitmap)
     {
+      //轉換PixelFormat
+      if (bitmap.PixelFormat != PixelImageFormat)
+      {
+        var bitmapFormatted = new Bitmap(bitmap.Width, bitmap.Height, PixelImageFormat);
+        using (Graphics g = Graphics.FromImage(bitmapFormatted))
+        {
+          g.DrawImage(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height));
+        }
+        bitmap = bitmapFormatted;
+      }
+
       this.Bitmap = new Bitmap(bitmap); //更新pixel
     }
 
     public PixelImage(Size size)
     {
-      _Bitmap = new Bitmap(size.Width, size.Height); //不更新pixel
+      _Bitmap = new Bitmap(size.Width, size.Height, PixelImageFormat); //不更新pixel
     }
 
     public PixelImage(byte[] pixel, Size size)
     {
-      _Bitmap = new Bitmap(size.Width, size.Height); //不更新pixel
+      _Bitmap = new Bitmap(size.Width, size.Height, PixelImageFormat); //不更新pixel
       this.Pixel = pixel; //更新bitmap
     }
 
@@ -149,14 +160,14 @@ namespace MyLibrary.Classes
     } //比new PixelIamge(bitmap)快
     #endregion
 
-    #region Private Methods
-    private void Pixel2Bitmap()
+    #region Convert Methods
+    public void Pixel2Bitmap()
     {
       //將image鎖定到系統內的記憶體的某個區塊中，並將這個結果交給BitmapData類別的imageData
       BitmapData bitmapData = _Bitmap.LockBits(
       new Rectangle(0, 0, _Bitmap.Width, _Bitmap.Height),
       ImageLockMode.ReadOnly,
-      PixelFormat);
+      PixelImageFormat);
 
       //複製pixel到bitmapData中
       Marshal.Copy(_Pixel, 0, bitmapData.Scan0, _Pixel.Length);
@@ -165,13 +176,13 @@ namespace MyLibrary.Classes
       _Bitmap.UnlockBits(bitmapData);
     }
 
-    private void Bitmap2Pixel()
+    public void Bitmap2Pixel()
     {
       //將image鎖定到系統內的記憶體的某個區塊中，並將這個結果交給BitmapData類別的imageData
       BitmapData bitmapData = _Bitmap.LockBits(
         new Rectangle(0, 0, _Bitmap.Width, _Bitmap.Height),
         ImageLockMode.ReadOnly,
-        PixelFormat);
+        PixelImageFormat);
 
       //初始化pixel陣列，用來儲存所有像素的訊息
       _Pixel = new byte[bitmapData.Stride * _Bitmap.Height];
