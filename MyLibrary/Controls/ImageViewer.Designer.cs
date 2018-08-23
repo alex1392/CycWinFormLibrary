@@ -34,7 +34,6 @@ namespace MyLibrary.Controls
       this.ScrollBarHorizontal = new MyLibrary.Controls.ScrollBar();
       this.ScrollBarVertical = new MyLibrary.Controls.ScrollBar();
       this.BackgroundWorker = new System.ComponentModel.BackgroundWorker();
-      this.metroToolTip1 = new MetroFramework.Components.MetroToolTip();
       ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
       this.SuspendLayout();
       // 
@@ -90,16 +89,6 @@ namespace MyLibrary.Controls
       this.BackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundWorker_DoWork);
       this.BackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker_RunWorkerCompleted);
       // 
-      // metroToolTip1
-      // 
-      this.metroToolTip1.AutoPopDelay = 5000;
-      this.metroToolTip1.InitialDelay = 1000;
-      this.metroToolTip1.MetroFont = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.metroToolTip1.ReshowDelay = 1000;
-      this.metroToolTip1.Style = MetroFramework.MetroColorStyle.Blue;
-      this.metroToolTip1.StyleManager = null;
-      this.metroToolTip1.Theme = MetroFramework.MetroThemeStyle.Light;
-      // 
       // ImageViewer
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
@@ -121,6 +110,5 @@ namespace MyLibrary.Controls
     private ScrollBar ScrollBarVertical;
     private ScrollBar ScrollBarHorizontal;
     private System.ComponentModel.BackgroundWorker BackgroundWorker;
-    private MetroFramework.Components.MetroToolTip metroToolTip1;
   }
 }

@@ -7,7 +7,7 @@ using static System.Math;
 
 namespace MyLibrary.Methods
 {
-  public class Math
+  public static class Math
   {
     public static int LinConvert(int value1, int max1, int min1, int max2, int min2)
     {
@@ -45,12 +45,14 @@ namespace MyLibrary.Methods
         return (int)value;
     }
 
-    public static void Swap<T>(ref T x, ref T y)
-    {
-      T tmp = x;
-      x = y;
-      y = tmp;
-    }
+    //public static void Swap<T>(ref T x, ref T y)
+    //{
+    //  T tmp = x;
+    //  x = y;
+    //  y = tmp;
+    //}
+
+    public static void Swap<T>(ref T x, ref T y) => (x, y) = (y, x);
 
     public static bool IsIn(int value, int Max, int Min)
     {

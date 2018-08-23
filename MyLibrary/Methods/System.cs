@@ -27,19 +27,14 @@ namespace MyLibrary.Methods
     }
 
     /*	TimeIt Example:
-    *	1. 
-    *	Code code = () => { string s = "Your Codes"; };
-    *	TimeIt(code); 
-    *	2.
     *	TimeIt( () => { string s = "Your Codes"; } );
     */
-    public delegate void Code();
-    public static void TimeIt(Code code)
+    public static void TimeIt(Action action)
     {
       Stopwatch sw = new Stopwatch();//引用stopwatch物件
       sw.Restart();
       //-----目標程式-----//
-      code.Invoke();
+      action.Invoke();
       //-----目標程式-----//
       sw.Stop();//碼錶停止
       string result = sw.Elapsed.TotalMilliseconds.ToString();

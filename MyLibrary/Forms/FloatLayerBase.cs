@@ -454,7 +454,9 @@ namespace MyLibrary.Forms
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("禁用該屬性！", true)]
+#pragma warning disable CS0809 // 過時成員會覆寫非過時成員
     public override sealed string Text { get { return string.Empty; } set { } }
+#pragma warning restore CS0809 // 過時成員會覆寫非過時成員
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("禁用該屬性！", true)]
