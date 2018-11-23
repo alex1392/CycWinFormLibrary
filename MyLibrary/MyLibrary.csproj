@@ -49,6 +49,7 @@
       <HintPath>..\..\..\WPF\Wpf15puzzle\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -56,6 +57,7 @@
     <Compile Include="Classes\Designer.cs" />
     <Compile Include="Classes\Drawing.cs" />
     <Compile Include="Classes\Threading.cs" />
+    <Compile Include="Classes\Xml.cs" />
     <Compile Include="Controls\CustomButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -76,6 +78,8 @@
     </Compile>
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\ControlExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Extensions\MergedStyles.cs" />
     <Compile Include="Forms\AutoResizeControlsForm.cs">
       <SubType>Form</SubType>
     </Compile>

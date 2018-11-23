@@ -45,12 +45,18 @@ namespace MyLibrary.Methods
         return (int)value;
     }
 
-    //public static void Swap<T>(ref T x, ref T y)
-    //{
-    //  T tmp = x;
-    //  x = y;
-    //  y = tmp;
-    //}
+    public static double Clamp(double value, double Max, double Min)
+    {
+      if (Min > Max)
+        Swap(ref Max, ref Min);
+
+      if (value > Max)
+        return Max;
+      else if (value < Min)
+        return Min;
+      else
+        return value;
+    }
 
     public static void Swap<T>(ref T x, ref T y) => (x, y) = (y, x);
 
